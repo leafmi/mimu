@@ -32,7 +32,9 @@
             android:background="#ffffff" />
 
 
-        <include layout="@layout/layout_main_player_content" />
+        <include
+            android:id="@+id/layout_player_content"
+            layout="@layout/layout_main_player_content" />
     </LinearLayout>
 
 </LinearLayout>

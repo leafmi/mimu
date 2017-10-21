@@ -39,7 +39,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private TabLayout mLocalMusicTab;
     private ViewPager mLocalMusicViewPager;
-    private View mBarPlay, mBarPause, mBarNext;
+    private View mLayoutPlayerContent, mBarPlay, mBarPause, mBarNext;
 
 
     /**
@@ -77,6 +77,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private void intiView() {
         mLocalMusicTab = (TabLayout) findViewById(R.id.local_music_tab);
         mLocalMusicViewPager = (ViewPager) findViewById(R.id.local_music_viewPager);
+        mLayoutPlayerContent = findViewById(R.id.layout_player_content);
         mBarPlay = findViewById(R.id.bar_play);
         mBarPause = findViewById(R.id.bar_pause);
         mBarNext = findViewById(R.id.bar_next);
@@ -107,6 +108,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private void listener() {
+        mLayoutPlayerContent.setOnClickListener(this);
         mBarPlay.setOnClickListener(this);
         mBarPause.setOnClickListener(this);
         mBarNext.setOnClickListener(this);
@@ -116,6 +118,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.layout_player_content:
+                startActivity(new Intent(this, PlayDetailActivity.class));
+                break;
             case R.id.bar_play:
                 int audioPlayStatus = audioPlayerManager.getMusicPlayStatus();
                 Intent playIntent = null;
