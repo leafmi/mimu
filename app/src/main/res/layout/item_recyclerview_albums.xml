@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+
+    <musicdemo.jlang.com.musicdemo.view.SquareImageView
+        android:id="@+id/img_album"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/icon_album_default" />
+
+
+    <LinearLayout
+        android:id="@+id/footer"
+        android:layout_width="match_parent"
+        android:layout_height="72dp">
+
+        <View
+            android:layout_width="16dp"
+            android:layout_height="0dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_music_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:lines="1" />
+
+            <TextView
+                android:id="@+id/tv_music_des"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lines="1" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="16dp"
+            android:layout_height="0dp" />
+    </LinearLayout>
+
+
+</LinearLayout>
