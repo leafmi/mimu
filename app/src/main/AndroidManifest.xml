@@ -29,6 +29,10 @@
             android:name="musicdemo.jlang.com.mimu.service.AudioPlayerService"
             android:enabled="true"
             android:exported="true" />
+        <service
+            android:name="musicdemo.jlang.com.mimu.service.MusicPlayerService"
+            android:enabled="true"
+            android:exported="true" />
 
         <activity android:name="musicdemo.jlang.com.mimu.activity.PlayDetailActivity"></activity>
     </application>
