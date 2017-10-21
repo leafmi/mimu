@@ -29,7 +29,7 @@
             android:textColor="@color/white"
             android:textSize="10sp" />
 
-        <musicdemo.jlang.com.musicdemo.view.PlayerSeekBar
+        <musicdemo.jlang.com.mimu.view.PlayerSeekBar
             android:id="@+id/play_seek"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="0dp"

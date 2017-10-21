@@ -5,7 +5,7 @@ android {
     compileSdkVersion 26
     buildToolsVersion "26.0.1"
     defaultConfig {
-        applicationId "musicdemo.jlang.com.musicdemo"
+        applicationId "musicdemo.jlang.com.mimu"
         minSdkVersion 15
         targetSdkVersion 26
         versionCode 1
@@ -27,7 +27,7 @@ android {
 }
 greendao {
     schemaVersion 1 //当前数据库版本
-    daoPackage 'musicdemo.jlang.com.musicdemo.greendao.gen'
+    daoPackage 'musicdemo.jlang.com.mimu.greendao.gen'
     targetGenDir 'src/main/java'
 }
 

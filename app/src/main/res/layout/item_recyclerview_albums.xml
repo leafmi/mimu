@@ -5,7 +5,7 @@
     android:orientation="vertical">
 
 
-    <musicdemo.jlang.com.musicdemo.view.SquareImageView
+    <musicdemo.jlang.com.mimu.view.SquareImageView
         android:id="@+id/img_album"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
