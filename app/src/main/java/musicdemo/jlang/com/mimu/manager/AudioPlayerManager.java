@@ -6,7 +6,7 @@ import java.util.Random;
 
 import musicdemo.jlang.com.mimu.ApplicationEx;
 import musicdemo.jlang.com.mimu.bean.MusicInfo;
-import musicdemo.jlang.com.mimu.greendao.entity.MusicPlayingList;
+import musicdemo.jlang.com.mimu.greendao.entity.MusicPlayingInfo;
 import musicdemo.jlang.com.mimu.util.PreferencesUtility;
 
 /**
@@ -79,15 +79,15 @@ public class AudioPlayerManager {
 //
 //
 //                    //发送init的广播
-//                    AudioMessage curAudioMessage = new AudioMessage();
+//                    MusicMessage curAudioMessage = new MusicMessage();
 //                    curAudioMessage.setAudioInfo(temp);
 //
 //
-//                    mApplicationEx.setCurAudioMessage(curAudioMessage);
+//                    mApplicationEx.setCurMusicMessage(curAudioMessage);
 //                    mApplicationEx.setCurAudioInfo(temp);
 //
 //                    Intent initIntent = new Intent(AudioBroadcastReceiver.ACTION_INIT_MUSIC);
-//                    initIntent.putExtra(AudioMessage.KEY, curAudioMessage);
+//                    initIntent.putExtra(MusicMessage.KEY, curAudioMessage);
 //                    initIntent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
 //                    mContext.sendBroadcast(initIntent);
 //
@@ -115,7 +115,7 @@ public class AudioPlayerManager {
         setMusicPlayStatus(STOP);
         mApplicationEx.setCurMusicInfos(null);
         mApplicationEx.setPlayingIndex(-1);
-        mApplicationEx.setCurAudioMessage(null);
+        mApplicationEx.setCurMusicMessage(null);
     }
 
 
@@ -125,7 +125,7 @@ public class AudioPlayerManager {
      * @param playModel
      */
     public MusicInfo preMusic(int playModel) {
-        if (mApplicationEx.getCurMusicInfo() == null || mApplicationEx.getCurAudioMessage() == null || mApplicationEx.getCurMusicInfos() == null) {
+        if (mApplicationEx.getCurMusicInfo() == null || mApplicationEx.getCurMusicMessage() == null || mApplicationEx.getCurMusicInfos() == null) {
             return null;
         }
         //获取播放索引
@@ -178,8 +178,8 @@ public class AudioPlayerManager {
      * @param playModel 播放模式
      * @return
      */
-    public MusicPlayingList nextMusic(int playModel) {
-        if (playingListManager.getCurAudioMessage() == null || playingListManager.getCurrentPlayingList() == null) {
+    public MusicPlayingInfo nextMusic(int playModel) {
+        if (playingListManager.getCurMusicMessage() == null || playingListManager.getCurrentPlayingList() == null) {
             return null;
         }
         //获取播放索引
@@ -187,7 +187,7 @@ public class AudioPlayerManager {
         if (playIndex == -1) {
             return null;
         }
-        MusicPlayingList playingList = null;
+        MusicPlayingInfo playingList = null;
         switch (playModel) {
             case 0:
                 // 顺序播放

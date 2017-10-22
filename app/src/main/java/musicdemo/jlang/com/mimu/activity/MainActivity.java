@@ -11,23 +11,29 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import musicdemo.jlang.com.mimu.ApplicationEx;
 import musicdemo.jlang.com.mimu.R;
 import musicdemo.jlang.com.mimu.adapter.LocalMusicFragmentAdapter;
-import musicdemo.jlang.com.mimu.bean.AudioMessage;
+import musicdemo.jlang.com.mimu.bean.MusicMessage;
+import musicdemo.jlang.com.mimu.event.message.EventMusicAction;
 import musicdemo.jlang.com.mimu.fragment.AlbumsFragment;
 import musicdemo.jlang.com.mimu.fragment.ArtistsFragment;
 import musicdemo.jlang.com.mimu.fragment.FoldersFragment;
 import musicdemo.jlang.com.mimu.fragment.SongsFragment;
 import musicdemo.jlang.com.mimu.manager.AudioPlayerManager;
+import musicdemo.jlang.com.mimu.manager.MusicPlayInfoManager;
+import musicdemo.jlang.com.mimu.manager.MusicPlayerManager;
 import musicdemo.jlang.com.mimu.manager.PlayingListManager;
 import musicdemo.jlang.com.mimu.permission.PermissionListener;
 import musicdemo.jlang.com.mimu.receiver.AudioBroadcastReceiver;
-import musicdemo.jlang.com.mimu.service.AudioPlayerService;
 import musicdemo.jlang.com.mimu.service.MusicPlayerService;
+import musicdemo.jlang.com.mimu.util.music.MusicAction;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener {
     private List<String> mTitleList = new ArrayList<>(4);
@@ -42,27 +48,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private ViewPager mLocalMusicViewPager;
     private View mLayoutPlayerContent, mBarPlay, mBarPause, mBarNext;
 
-
-    /**
-     * 音频广播
-     */
-    private AudioBroadcastReceiver mAudioBroadcastReceiver;
-
-    /**
-     * 广播监听
-     */
-    private AudioBroadcastReceiver.AudioReceiverListener mAudioReceiverListener = new AudioBroadcastReceiver.AudioReceiverListener() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            doAudioReceive(context, intent);
-        }
-    };
-
     /**
      * 播放列表Manager
      */
     private PlayingListManager playingListManager;
     private AudioPlayerManager audioPlayerManager;
+
+    private MusicPlayerManager musicPlayerManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +63,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         intiView();
         initData();
         listener();
-        initService();
+        registerEventBus();
         requestPermission();
     }
 
@@ -86,13 +78,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private void initData() {
         //启动Music 服务
-        Intent playerServiceIntent = new Intent(this, AudioPlayerService.class);
-        ApplicationEx.getInstance().startService(playerServiceIntent);
-
-        //启动Music 服务
         Intent musiServiceIntent = new Intent(this, MusicPlayerService.class);
         ApplicationEx.getInstance().startService(musiServiceIntent);
-
+        //设置当播放的状态
+        musicPlayerManager = MusicPlayerManager.getInstance(this);
+        musicPlayerManager.setMusicPlayStatus(AudioPlayerManager.STOP);
 
         //获取播放列表Manager
         playingListManager = PlayingListManager.getInstance();
@@ -119,6 +109,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         mBarNext.setOnClickListener(this);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterEventBus();
+    }
 
     @Override
     public void onClick(View view) {
@@ -127,30 +122,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 startActivity(new Intent(this, PlayDetailActivity.class));
                 break;
             case R.id.bar_play:
-                int audioPlayStatus = audioPlayerManager.getMusicPlayStatus();
-                Intent playIntent = null;
-                if (audioPlayStatus == AudioPlayerManager.PAUSE) {
-                    playIntent = new Intent(AudioBroadcastReceiver.ACTION_RESUME_MUSIC);
-                } else if (audioPlayStatus == AudioPlayerManager.STOP) {
-                    playIntent = new Intent(AudioBroadcastReceiver.ACTION_PLAY_MUSIC);
-                }
-                if (playIntent != null) {
-                    playIntent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-                    playIntent.putExtra(AudioMessage.KEY, playingListManager.getCurAudioMessage());
-                    sendBroadcast(playIntent);
-                }
+                musicPlayerManager.playAction();
                 break;
             case R.id.bar_pause:
-                if (audioPlayerManager.getMusicPlayStatus() == AudioPlayerManager.PLAYING) {
-                    Intent pauseIntent = new Intent(AudioBroadcastReceiver.ACTION_PAUSE_MUSIC);
-                    pauseIntent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-                    sendBroadcast(pauseIntent);
-                }
+                musicPlayerManager.playAction();
                 break;
             case R.id.bar_next:
-                Intent nextIntent = new Intent(AudioBroadcastReceiver.ACTION_NEXT_MUSIC);
-                nextIntent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-                sendBroadcast(nextIntent);
+                musicPlayerManager.playAction(MusicAction.ACTION_NEXT_MUSIC, null, -1);
                 break;
         }
     }
@@ -201,45 +179,29 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 });
     }
 
-        private void initService() {
-            //注册接收音频播放广播
-            mAudioBroadcastReceiver = new AudioBroadcastReceiver(getApplicationContext(), ApplicationEx.getInstance());
-            mAudioBroadcastReceiver.setAudioReceiverListener(mAudioReceiverListener);
-            mAudioBroadcastReceiver.registerReceiver(getApplicationContext());
-        }
 
-
-    /**
-     * 处理音频广播事件
-     *
-     * @param context
-     * @param intent
-     */
-    private void doAudioReceive(Context context, Intent intent) {
-        String action = intent.getAction();
-        switch (action) {
-            case AudioBroadcastReceiver.ACTION_NULL_MUSIC:
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMusicActionEvent(EventMusicAction event) {
+        switch (event.getAction()) {
+            case MusicAction.ACTION_NULL_MUSIC:
                 mBarPause.setVisibility(View.INVISIBLE);
                 mBarPlay.setVisibility(View.VISIBLE);
                 break;
-            case AudioBroadcastReceiver.ACTION_INIT_MUSIC:
+            case MusicAction.ACTION_INIT_MUSIC:
                 break;
-            case AudioBroadcastReceiver.ACTION_SERVICE_PLAY_MUSIC:
+            case MusicAction.ACTION_SERVICE_PLAY_MUSIC:
                 mBarPlay.setVisibility(View.INVISIBLE);
                 mBarPause.setVisibility(View.VISIBLE);
-                Log.d("TAG_MUSIC", "开始播放音乐");
                 break;
-            case AudioBroadcastReceiver.ACTION_SERVICE_PAUSE_MUSIC:
+            case MusicAction.ACTION_SERVICE_PLAYING_MUSIC:
+                break;
+            case MusicAction.ACTION_SERVICE_PAUSE_MUSIC:
                 mBarPlay.setVisibility(View.VISIBLE);
                 mBarPause.setVisibility(View.INVISIBLE);
-                Log.d("TAG_MUSIC", "暂停音乐");
                 break;
-            case AudioBroadcastReceiver.ACTION_SERVICE_RESUME_MUSIC:
+            case MusicAction.ACTION_SERVICE_RESUME_MUSIC:
                 mBarPlay.setVisibility(View.INVISIBLE);
                 mBarPause.setVisibility(View.VISIBLE);
-                Log.d("TAG_MUSIC", "唤醒音乐");
-                break;
-            case AudioBroadcastReceiver.ACTION_SERVICE_PLAYING_MUSIC:
                 break;
         }
     }

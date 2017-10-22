@@ -17,4 +17,8 @@ public class MusicPlaySate {
      * 停止
      */
     public static final int STOP = 2;
+    /**
+     * 播放在线音乐
+     */
+    public static final int PLAY_NET = 3;
 }

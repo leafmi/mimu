@@ -11,14 +11,12 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import musicdemo.jlang.com.mimu.bean.AudioMessage;
 import musicdemo.jlang.com.mimu.bean.MusicInfo;
+import musicdemo.jlang.com.mimu.bean.MusicMessage;
 import musicdemo.jlang.com.mimu.event.message.EventMusicAction;
 import musicdemo.jlang.com.mimu.manager.AudioPlayerManager;
 import musicdemo.jlang.com.mimu.manager.MusicPlayInfoManager;
 import musicdemo.jlang.com.mimu.manager.MusicPlayerManager;
-import musicdemo.jlang.com.mimu.receiver.AudioBroadcastReceiver;
-import musicdemo.jlang.com.mimu.util.ToastUtil;
 import musicdemo.jlang.com.mimu.util.music.MusicAction;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
@@ -55,7 +53,7 @@ public class MusicPlayerService extends Service {
             EventBus.getDefault().register(this);
         }
         musicPlayerManager = MusicPlayerManager.getInstance(this);
-        musicPlayInfoManager = MusicPlayInfoManager.getInstance(this);
+        musicPlayInfoManager = MusicPlayInfoManager.getInstance();
     }
 
     @Override
@@ -80,11 +78,12 @@ public class MusicPlayerService extends Service {
     public void onMusicActionEvent(EventMusicAction event) {
         switch (event.getAction()) {
             case MusicAction.ACTION_NULL_MUSIC:
+                releasePlayer();
                 break;
             case MusicAction.ACTION_INIT_MUSIC:
                 break;
             case MusicAction.ACTION_PLAY_MUSIC:
-                playMusic(event.getMusicInfo());
+                playMusic(event.getMusicMessage());
                 break;
             case MusicAction.ACTION_RESUME_MUSIC:
                 resumeMusic();
@@ -107,25 +106,26 @@ public class MusicPlayerService extends Service {
     /**
      * 播放音乐
      */
-    private void playMusic(MusicInfo musicInfo) {
+    private void playMusic(MusicMessage musicMessage) {
         releasePlayer();
+        musicPlayInfoManager.setMusicMessage(musicMessage);
         //开始初始化音乐
         postMusicServiceAction(MusicAction.ACTION_INIT_MUSIC);
 
-        if (musicInfo.getType() == MusicInfo.LOCAL) {
+        if (musicMessage.getMusicType() == MusicInfo.LOCAL) {
             //播放本地音乐
-            playLocalMusic(musicInfo);
+            playLocalMusic(musicMessage);
         } else {
             //播放网络音乐
         }
     }
 
 
-    private void playLocalMusic(MusicInfo musicInfo) {
+    private void playLocalMusic(MusicMessage musicMessage) {
         try {
             mMediaPlayer = new IjkMediaPlayer();
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mMediaPlayer.setDataSource(musicInfo.path);
+            mMediaPlayer.setDataSource(musicMessage.getMusicInfo().getPath());
             mMediaPlayer.prepareAsync();
 
             //设置当播放的状态
@@ -156,8 +156,8 @@ public class MusicPlayerService extends Service {
             mMediaPlayer.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(IMediaPlayer mp) {
-//                    if (playingListManager.getCurAudioMessage() != null) {
-//                        AudioMessage audioMessage = playingListManager.getCurAudioMessage();
+//                    if (playingListManager.getCurMusicMessage() != null) {
+//                        MusicMessage audioMessage = playingListManager.getCurMusicMessage();
 //                        if (audioMessage.getPlayProgress() > 0) {
 //                            isSeekTo = true;
 //                            mMediaPlayer.seekTo(audioMessage.getPlayProgress());
@@ -213,14 +213,27 @@ public class MusicPlayerService extends Service {
      * 唤醒播放音乐
      */
     private void resumeMusic() {
-
+        if (mMediaPlayer != null) {
+            isSeekTo = true;
+            mMediaPlayer.seekTo(musicPlayInfoManager.getMusicCurrentProcess());
+        }
+        musicPlayerManager.setMusicPlayStatus(AudioPlayerManager.PLAYING);
+        //发送唤醒播播放消息
+        postMusicServiceAction(MusicAction.ACTION_SERVICE_RESUME_MUSIC);
     }
 
     /**
      * 暂停音乐
      */
     private void pauseMusic() {
-
+        if (mMediaPlayer != null) {
+            if (mMediaPlayer.isPlaying()) {
+                mMediaPlayer.pause();
+            }
+        }
+        musicPlayerManager.setMusicPlayStatus(AudioPlayerManager.PAUSE);
+        //发送暂停播放消息
+        postMusicServiceAction(MusicAction.ACTION_SERVICE_PAUSE_MUSIC);
     }
 
     /**
@@ -234,14 +247,30 @@ public class MusicPlayerService extends Service {
      * 上一曲
      */
     private void preMusic() {
-
+        MusicInfo musicInfo = musicPlayerManager.preMusic();
+        if (musicInfo == null) {
+            releasePlayer();
+            resetPlayDataProgress();
+            postMusicServiceAction(MusicAction.ACTION_NULL_MUSIC);
+            return;
+        }
+        MusicMessage musicMessage = new MusicMessage(musicInfo, musicInfo.getType());
+        playMusic(musicMessage);
     }
 
     /**
      * 下一曲
      */
     private void nextMusic() {
-
+        MusicInfo musicInfo = musicPlayerManager.nextMusic();
+        if (musicInfo == null) {
+            releasePlayer();
+            resetPlayDataProgress();
+            postMusicServiceAction(MusicAction.ACTION_NULL_MUSIC);
+            return;
+        }
+        MusicMessage musicMessage = new MusicMessage(musicInfo, musicInfo.getType());
+        playMusic(musicMessage);
     }
 
     /**
@@ -265,18 +294,29 @@ public class MusicPlayerService extends Service {
         }
     }
 
-        /**
-         * 释放播放器
-         */
-        private void releasePlayer() {
-            if (mMediaPlayer != null) {
-                if (mMediaPlayer.isPlaying()) {
-                    mMediaPlayer.stop();
-                }
-                mMediaPlayer.reset();
-                mMediaPlayer.release();
-                mMediaPlayer = null;
+    /**
+     * 释放播放器
+     */
+    private void releasePlayer() {
+        if (mMediaPlayer != null) {
+            if (mMediaPlayer.isPlaying()) {
+                mMediaPlayer.stop();
             }
-            System.gc();
+            mMediaPlayer.reset();
+            mMediaPlayer.release();
+            mMediaPlayer = null;
         }
+        System.gc();
     }
+
+    /**
+     * 重置播放数据进度
+     */
+    private void resetPlayDataProgress() {
+//        MusicMessage curAudioMessage = playingListManager.getCurMusicMessage();
+//        if (curAudioMessage != null) {
+//            curAudioMessage.setPlayProgress(0);
+//        }
+
+    }
+}

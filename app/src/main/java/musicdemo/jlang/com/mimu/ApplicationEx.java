@@ -7,7 +7,7 @@ import com.facebook.stetho.Stetho;
 import java.util.List;
 
 import musicdemo.jlang.com.mimu.bean.MusicInfo;
-import musicdemo.jlang.com.mimu.bean.AudioMessage;
+import musicdemo.jlang.com.mimu.bean.MusicMessage;
 import musicdemo.jlang.com.mimu.greendao.SQLiteOpenHelperManager;
 import musicdemo.jlang.com.mimu.util.PreferencesUtility;
 
@@ -21,7 +21,7 @@ public class ApplicationEx extends Application {
     /**
      * 当前歌曲
      */
-    private AudioMessage curAudioMessage;
+    private MusicMessage curMusicMessage;
     /**
      * 当前播放列表
      */
@@ -67,12 +67,12 @@ public class ApplicationEx extends Application {
         PreferencesUtility.getInstance(this).setMusicPlayModel(playModel);
     }
 
-    public AudioMessage getCurAudioMessage() {
-        return curAudioMessage;
+    public MusicMessage getCurMusicMessage() {
+        return curMusicMessage;
     }
 
-    public void setCurAudioMessage(final AudioMessage curAudioMessage) {
-        this.curAudioMessage = curAudioMessage;
+    public void setCurMusicMessage(final MusicMessage curMusicMessage) {
+        this.curMusicMessage = curMusicMessage;
     }
 
     public List<MusicInfo> getCurMusicInfos() {

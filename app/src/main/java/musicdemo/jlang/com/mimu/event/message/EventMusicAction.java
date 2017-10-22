@@ -1,6 +1,7 @@
 package musicdemo.jlang.com.mimu.event.message;
 
 import musicdemo.jlang.com.mimu.bean.MusicInfo;
+import musicdemo.jlang.com.mimu.bean.MusicMessage;
 
 /**
  * Created by JLang on 2017/10/21.
@@ -8,15 +9,21 @@ import musicdemo.jlang.com.mimu.bean.MusicInfo;
 
 public class EventMusicAction {
     private int action;
-    private MusicInfo musicInfo;
+    private String MusicInfoPath;
+    private MusicMessage musicMessage;
 
     public EventMusicAction(int action) {
         this.action = action;
     }
 
-    public EventMusicAction(int action, MusicInfo musicInfo) {
+    public EventMusicAction(int action, String musicInfoPath) {
         this.action = action;
-        this.musicInfo = musicInfo;
+        MusicInfoPath = musicInfoPath;
+    }
+
+    public EventMusicAction(int action, MusicMessage musicMessage) {
+        this.action = action;
+        this.musicMessage = musicMessage;
     }
 
     public int getAction() {
@@ -27,11 +34,15 @@ public class EventMusicAction {
         this.action = action;
     }
 
-    public MusicInfo getMusicInfo() {
-        return musicInfo;
+    public String getMusicInfoPath() {
+        return MusicInfoPath;
     }
 
-    public void setMusicInfo(MusicInfo musicInfo) {
-        this.musicInfo = musicInfo;
+    public void setMusicInfoPath(String musicInfoPath) {
+        MusicInfoPath = musicInfoPath;
+    }
+
+    public MusicMessage getMusicMessage() {
+        return musicMessage;
     }
 }

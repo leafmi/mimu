@@ -14,9 +14,9 @@ import musicdemo.jlang.com.mimu.greendao.gen.MusicPlayingListDao;
 
 @Entity(
         // 指定数据库中表的名称。默认情况下，该名称基于实体类名。
-        nameInDb = "music_playing_list"
+        nameInDb = "music_playing_info"
 )
-public class MusicPlayingList {
+public class MusicPlayingInfo {
     @Id(autoincrement = true)
     private Long _id = null;
 
@@ -32,15 +32,15 @@ public class MusicPlayingList {
     @Property(nameInDb = "order_second")
     private int orderSecond;
 
-    public MusicPlayingList(long musicId, String musicData, int orderFirst, int orderSecond) {
+    public MusicPlayingInfo(long musicId, String musicData, int orderFirst, int orderSecond) {
         this.musicId = musicId;
         this.musicData = musicData;
         this.orderFirst = orderFirst;
         this.orderSecond = orderSecond;
     }
 
-    @Generated(hash = 1065905114)
-    public MusicPlayingList(Long _id, long musicId, String musicData, int orderFirst,
+    @Generated(hash = 1367538056)
+    public MusicPlayingInfo(Long _id, long musicId, String musicData, int orderFirst,
             int orderSecond) {
         this._id = _id;
         this.musicId = musicId;
@@ -49,8 +49,8 @@ public class MusicPlayingList {
         this.orderSecond = orderSecond;
     }
 
-    @Generated(hash = 1532292764)
-    public MusicPlayingList() {
+    @Generated(hash = 82384843)
+    public MusicPlayingInfo() {
     }
 
     public long getMusicId() {

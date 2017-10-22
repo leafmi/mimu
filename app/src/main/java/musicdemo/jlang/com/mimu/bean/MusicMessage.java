@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Created by JLang on 2017/10/18.
  */
 
-public class AudioMessage implements Serializable {
+public class MusicMessage implements Serializable {
     public static final String KEY = "com.zlm.hp.am.key";
     /**
      * 错误信息
@@ -19,7 +19,7 @@ public class AudioMessage implements Serializable {
     /**
      * 音频信息
      */
-    private String musicData;
+    private MusicInfo musicInfo;
     /**
      * 音乐类型
      */
@@ -29,6 +29,10 @@ public class AudioMessage implements Serializable {
      */
     private String hash;
 
+    public MusicMessage(MusicInfo musicInfo, int musicType) {
+        this.musicInfo = musicInfo;
+        this.musicType = musicType;
+    }
 
     public String getErrorMsg() {
         return errorMsg;
@@ -46,12 +50,12 @@ public class AudioMessage implements Serializable {
         this.playProgress = playProgress;
     }
 
-    public String getMusicData() {
-        return musicData;
+    public MusicInfo getMusicInfo() {
+        return musicInfo;
     }
 
-    public void setMusicData(String musicData) {
-        this.musicData = musicData;
+    public void setMusicInfo(MusicInfo musicInfo) {
+        this.musicInfo = musicInfo;
     }
 
     public int getMusicType() {

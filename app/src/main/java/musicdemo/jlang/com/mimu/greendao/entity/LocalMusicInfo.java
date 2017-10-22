@@ -15,8 +15,8 @@ public class LocalMusicInfo {
     private Long _id = null;
     @Property(nameInDb = "music_Id")
     private long musicId;
-    @Property(nameInDb = "music_data")
-    private String musicData;
+    @Property(nameInDb = "data")
+    private String data;
     @Property(nameInDb = "music_size")
     private long musicSize;
     @Property(nameInDb = "modified_time")
@@ -26,15 +26,15 @@ public class LocalMusicInfo {
     @Property(nameInDb = "duration")
     private long duration;
     @Property(nameInDb = "title")
-    private long title;
+    private String title;
     @Property(nameInDb = "artist_id")
     private long artistId;
     @Property(nameInDb = "album_id")
     private long albumId;
 
-    public LocalMusicInfo(long musicId, String musicData, long musicSize, long modifiedTime, long addTime, long duration, long title, long artistId, long albumId) {
+    public LocalMusicInfo(long musicId, String data, long musicSize, long modifiedTime, long addTime, long duration, String title, long artistId, long albumId) {
         this.musicId = musicId;
-        this.musicData = musicData;
+        this.data = data;
         this.musicSize = musicSize;
         this.modifiedTime = modifiedTime;
         this.addTime = addTime;
@@ -44,12 +44,12 @@ public class LocalMusicInfo {
         this.albumId = albumId;
     }
 
-    @Generated(hash = 754586604)
-    public LocalMusicInfo(Long _id, long musicId, String musicData, long musicSize, long modifiedTime, long addTime, long duration, long title, long artistId,
+    @Generated(hash = 674956314)
+    public LocalMusicInfo(Long _id, long musicId, String data, long musicSize, long modifiedTime, long addTime, long duration, String title, long artistId,
             long albumId) {
         this._id = _id;
         this.musicId = musicId;
-        this.musicData = musicData;
+        this.data = data;
         this.musicSize = musicSize;
         this.modifiedTime = modifiedTime;
         this.addTime = addTime;
@@ -71,12 +71,12 @@ public class LocalMusicInfo {
         this.musicId = musicId;
     }
 
-    public String getMusicData() {
-        return musicData;
+    public String getData() {
+        return data;
     }
 
-    public void setMusicData(String musicData) {
-        this.musicData = musicData;
+    public void setData(String data) {
+        this.data = data;
     }
 
     public long getMusicSize() {
@@ -111,11 +111,11 @@ public class LocalMusicInfo {
         this.duration = duration;
     }
 
-    public long getTitle() {
+    public String getTitle() {
         return title;
     }
 
-    public void setTitle(long title) {
+    public void setTitle(String title) {
         this.title = title;
     }
 

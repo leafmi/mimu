@@ -29,6 +29,7 @@ public class MusicInfo implements Serializable {
     public int trackNumber;
     public float playCountScore;
     public String path;
+    private long size;
 
     public MusicInfo() {
         this.id = -1;
@@ -54,7 +55,7 @@ public class MusicInfo implements Serializable {
         this.path = "";
     }
 
-    public MusicInfo(long _id, long _albumId, long _artistId, String _title, String _artistName, String _albumName, int _duration, int _trackNumber, String _path) {
+    public MusicInfo(long _id, long _albumId, long _artistId, String _title, String _artistName, String _albumName, int _duration, int _trackNumber, String _path, long _size) {
         this.id = _id;
         this.albumId = _albumId;
         this.artistId = _artistId;
@@ -64,6 +65,7 @@ public class MusicInfo implements Serializable {
         this.duration = _duration;
         this.trackNumber = _trackNumber;
         this.path = _path;
+        this.size = _size;
     }
 
 
@@ -117,5 +119,9 @@ public class MusicInfo implements Serializable {
 
     public String getPath() {
         return path;
+    }
+
+    public long getSize() {
+        return size;
     }
 }

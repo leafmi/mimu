@@ -32,7 +32,7 @@ public class SongLoader {
                         long id = cursor.getLong(0);
                         String title = cursor.getString(1);
                         String artist = cursor.getString(2);
-                        if(artist.equals(MediaStore.UNKNOWN_STRING)){
+                        if (artist.equals(MediaStore.UNKNOWN_STRING)) {
                             continue;
                         }
                         String album = cursor.getString(3);
@@ -41,7 +41,8 @@ public class SongLoader {
                         long artistId = cursor.getInt(6);
                         long albumId = cursor.getLong(7);
                         String path = cursor.getString(8);
-                        arrayList.add(new MusicInfo(id, albumId, artistId, title, artist, album, duration, trackNumber, path));
+                        long size = cursor.getLong(9);
+                        arrayList.add(new MusicInfo(id, albumId, artistId, title, artist, album, duration, trackNumber, path, size));
                     }
                     while (cursor.moveToNext());
                 if (cursor != null) {
@@ -75,7 +76,7 @@ public class SongLoader {
             selectionStatement = selectionStatement + " AND " + selection;
         }
         return context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-        new String[]{"_id", "title", "artist", "album", "duration", "track", "artist_id", "album_id", MediaStore.Audio.Media.DATA},
+                new String[]{"_id", "title", "artist", "album", "duration", "track", "artist_id", "album_id", MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.SIZE},
                 selectionStatement, paramArrayOfString, sortOrder);
 
     }
