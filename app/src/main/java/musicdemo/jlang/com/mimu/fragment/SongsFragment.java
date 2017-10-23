@@ -10,7 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
@@ -18,13 +20,16 @@ import io.reactivex.schedulers.Schedulers;
 import musicdemo.jlang.com.mimu.R;
 import musicdemo.jlang.com.mimu.adapter.SongsAdapter;
 import musicdemo.jlang.com.mimu.bean.MusicInfo;
+import musicdemo.jlang.com.mimu.bean.MusicPlayInfo;
 import musicdemo.jlang.com.mimu.dataloader.SongLoader;
 import musicdemo.jlang.com.mimu.greendao.SQLiteOpenHelperManager;
 import musicdemo.jlang.com.mimu.greendao.entity.LocalMusicInfo;
+import musicdemo.jlang.com.mimu.greendao.entity.MusicPlayingInfo;
 import musicdemo.jlang.com.mimu.greendao.gen.DaoSession;
 import musicdemo.jlang.com.mimu.greendao.gen.LocalMusicInfoDao;
 import musicdemo.jlang.com.mimu.manager.MusicPlayInfoManager;
 import musicdemo.jlang.com.mimu.manager.MusicPlayerManager;
+import musicdemo.jlang.com.mimu.util.ListenerUtil;
 import musicdemo.jlang.com.mimu.util.PreferencesUtility;
 
 /**
@@ -91,21 +96,30 @@ public class SongsFragment extends Fragment implements RecyclerViewOnItemClickLi
 
                         DaoSession daoSession = SQLiteOpenHelperManager.createDaoSession(getActivity(), true);
                         LocalMusicInfoDao localMusicInfoDao = daoSession.getLocalMusicInfoDao();
-                        List<LocalMusicInfo> localMusicInfos = new ArrayList<LocalMusicInfo>();
+                        List<LocalMusicInfo> localMusicInfos = localMusicInfoDao.loadAll();
+                        Map<String, LocalMusicInfo> musicInfoMap = new HashMap<String, LocalMusicInfo>();
+                        for (int i = 0; i < localMusicInfos.size(); i++) {
+                            LocalMusicInfo localMusicInfo = localMusicInfos.get(i);
+                            musicInfoMap.put(localMusicInfo.getData(), localMusicInfo);
+                        }
                         for (int i = 0; i < songs.size(); i++) {
                             MusicInfo musicInfo = songs.get(i);
-                            localMusicInfos.add(new LocalMusicInfo(musicInfo.getId(),musicInfo.getPath()
-                                    ,musicInfo.getSize()
-                                    ,System.currentTimeMillis()
-                                    ,System.currentTimeMillis()
-                                    ,musicInfo.duration
-                                    ,musicInfo.title
-                                    ,12L
-                                    ,12L
-                            ));
+                            if (musicInfoMap.containsKey(musicInfo.getPath())) {
+
+                            } else {
+                                localMusicInfos.add(new LocalMusicInfo(musicInfo.getId(), musicInfo.getPath()
+                                        , musicInfo.getSize()
+                                        , System.currentTimeMillis()
+                                        , System.currentTimeMillis()
+                                        , musicInfo.duration
+                                        , musicInfo.title
+                                        , musicInfo.artistName
+                                        , musicInfo.albumName
+                                        , ListenerUtil.getAlbumArtUri(musicInfo.albumId).toString()
+                                ));
+                            }
                         }
                         localMusicInfoDao.insertOrReplaceInTx(localMusicInfos);
-
 
                     }
                 });
@@ -115,50 +129,9 @@ public class SongsFragment extends Fragment implements RecyclerViewOnItemClickLi
 
     @Override
     public void onItemClick(View view, int position, Object object) {
-//        List<MusicInfo> musicInfos = (List<MusicInfo>) object;
-//        Intent playIntent = new Intent();
-//        MusicInfo musicInfo = musicInfos.get(position);
-//
-//
-//
-//        int audioPlayStatus = AudioPlayerManager.getInstance(getActivity(), ApplicationEx.getInstance()).getMusicPlayStatus();
-//
-//        PlayingListManager playingListManager = PlayingListManager.getInstance();
-//        MusicMessage curAudioMessage = playingListManager.getCurMusicMessage();
-//        if (curAudioMessage != null && curAudioMessage.getMusicData().equals(musicInfo.getPath())) {
-//            if (audioPlayStatus == AudioPlayerManager.PLAYING) {
-//                playIntent.setAction(AudioBroadcastReceiver.ACTION_PAUSE_MUSIC);
-//            } else if (audioPlayStatus == AudioPlayerManager.PAUSE) {
-//                playIntent.setAction(AudioBroadcastReceiver.ACTION_RESUME_MUSIC);
-//                playIntent.putExtra(MusicMessage.KEY, playingListManager.getCurMusicMessage());
-//            } else if (audioPlayStatus == AudioPlayerManager.STOP) {
-//                playIntent = new Intent(AudioBroadcastReceiver.ACTION_PLAY_MUSIC);
-//                playIntent.putExtra(MusicMessage.KEY, playingListManager.getCurMusicMessage());
-//            }
-//        } else {
-//            playIntent.setAction(AudioBroadcastReceiver.ACTION_PLAY_MUSIC);
-//            MusicMessage audioMessage = new MusicMessage();
-//            audioMessage.setMusicData(musicInfo.getPath());
-//            audioMessage.setMusicType(MusicInfo.LOCAL);
-//            playIntent.putExtra(MusicMessage.KEY, audioMessage);
-//        }
-//
-//        playIntent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-//        getActivity().sendBroadcast(playIntent);
-//
-//        //如果当前数据歌单
-//        if (PreferencesUtility.getInstance(getActivity()).getCurrentPlayingListSourceId() != -1) {
-//            playingListManager.setCurrentPlayingIndex(position);
-//
-//            //创建新的播放列表
-//            playingListManager.addLocalPlayingList(musicInfos, -1);
-//        } else {
-//            //计算播放Id
-//            playingListManager.calcCurrentPLayingIndex(musicInfo.getPath());
-//        }
         List<MusicInfo> musicInfos = (List<MusicInfo>) object;
         MusicInfo musicInfo = musicInfos.get(position);
-        MusicPlayerManager.getInstance(getActivity()).playAction(musicInfo, MusicInfo.LOCAL);
+
         //如果当前数据歌单
         if (PreferencesUtility.getInstance(getActivity()).getCurrentPlayingListSourceId() != -1) {
             MusicPlayInfoManager.getInstance().setCurrentPlayingIndex(position);
@@ -168,6 +141,8 @@ public class SongsFragment extends Fragment implements RecyclerViewOnItemClickLi
             //计算播放Id
             MusicPlayInfoManager.getInstance().calcCurrentPLayingIndex(musicInfo.getPath());
         }
+        MusicPlayInfo playInfo = MusicPlayInfoManager.getInstance().getPlayInfo();
+        MusicPlayerManager.getInstance(getActivity()).playAction(playInfo, MusicInfo.LOCAL);
     }
 
 

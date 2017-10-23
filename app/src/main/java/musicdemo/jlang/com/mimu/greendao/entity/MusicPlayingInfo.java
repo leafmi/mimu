@@ -6,7 +6,6 @@ import org.greenrobot.greendao.annotation.Property;
 import org.greenrobot.greendao.annotation.Generated;
 
 import musicdemo.jlang.com.mimu.greendao.gen.DaoSession;
-import musicdemo.jlang.com.mimu.greendao.gen.MusicPlayingListDao;
 
 /**
  * Created by JLang on 2017/10/19.
@@ -23,8 +22,8 @@ public class MusicPlayingInfo {
     @Property(nameInDb = "music_Id")
     private long musicId;
 
-    @Property(nameInDb = "music_data")
-    private String musicData;
+    @Property(nameInDb = "data")
+    private String data;
 
     @Property(nameInDb = "order_first")
     private int orderFirst;
@@ -32,19 +31,19 @@ public class MusicPlayingInfo {
     @Property(nameInDb = "order_second")
     private int orderSecond;
 
-    public MusicPlayingInfo(long musicId, String musicData, int orderFirst, int orderSecond) {
+    public MusicPlayingInfo(long musicId, String data, int orderFirst, int orderSecond) {
         this.musicId = musicId;
-        this.musicData = musicData;
+        this.data = data;
         this.orderFirst = orderFirst;
         this.orderSecond = orderSecond;
     }
 
-    @Generated(hash = 1367538056)
-    public MusicPlayingInfo(Long _id, long musicId, String musicData, int orderFirst,
+    @Generated(hash = 910406780)
+    public MusicPlayingInfo(Long _id, long musicId, String data, int orderFirst,
             int orderSecond) {
         this._id = _id;
         this.musicId = musicId;
-        this.musicData = musicData;
+        this.data = data;
         this.orderFirst = orderFirst;
         this.orderSecond = orderSecond;
     }
@@ -61,12 +60,12 @@ public class MusicPlayingInfo {
         this.musicId = musicId;
     }
 
-    public String getMusicData() {
-        return musicData;
+    public String getData() {
+        return data;
     }
 
-    public void setMusicData(String musicData) {
-        this.musicData = musicData;
+    public void setData(String data) {
+        this.data = data;
     }
 
     public int getOrderFirst() {

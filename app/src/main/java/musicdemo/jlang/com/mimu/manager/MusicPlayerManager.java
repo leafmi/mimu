@@ -10,6 +10,7 @@ import java.util.Random;
 import musicdemo.jlang.com.mimu.ApplicationEx;
 import musicdemo.jlang.com.mimu.bean.MusicInfo;
 import musicdemo.jlang.com.mimu.bean.MusicMessage;
+import musicdemo.jlang.com.mimu.bean.MusicPlayInfo;
 import musicdemo.jlang.com.mimu.event.message.EventMusicAction;
 import musicdemo.jlang.com.mimu.greendao.entity.MusicPlayingInfo;
 import musicdemo.jlang.com.mimu.util.PreferencesUtility;
@@ -39,7 +40,7 @@ public class MusicPlayerManager {
     }
 
 
-    public void playAction(int action, MusicInfo musicInfo, int musicType) {
+    public void playAction(int action, MusicPlayInfo musicInfo, int musicType) {
         MusicMessage musicMessage = null;
         boolean isNeedMessage = true;
         switch (action) {
@@ -65,10 +66,10 @@ public class MusicPlayerManager {
     }
 
 
-    public void playAction(MusicInfo musicInfo, int musicType) {
+    public void playAction(MusicPlayInfo musicInfo, int musicType) {
         MusicMessage musicMessage = MusicPlayInfoManager.getInstance().getMusicMessage();
         if (musicMessage != null && musicInfo != null) {
-            if (musicMessage.getMusicInfo().getPath().equals(musicInfo.getPath())) {
+            if (musicMessage.getMusicInfo().getData().equals(musicInfo.getData())) {
                 //根据状态执行操作
                 switch (getMusicPlayStatus()) {
                     case MusicPlaySate.PLAYING:
@@ -108,8 +109,8 @@ public class MusicPlayerManager {
      *
      * @return
      */
-    public MusicInfo preMusic() {
-        List<MusicInfo> musicInfos;
+    public MusicPlayInfo preMusic() {
+        List<MusicPlayInfo> musicInfos;
         if (musicPlayInfoManager != null) {
             musicInfos = musicPlayInfoManager.getMusicPlayListData();
         } else {
@@ -122,7 +123,7 @@ public class MusicPlayerManager {
         if (playIndex == -1) {
             return null;
         }
-        MusicInfo musicInfo = null;
+        MusicPlayInfo musicInfo = null;
         switch (playModel) {
             case 0:
                 // 顺序播放
@@ -165,8 +166,8 @@ public class MusicPlayerManager {
      *
      * @return
      */
-    public MusicInfo nextMusic() {
-        List<MusicInfo> musicInfos;
+    public MusicPlayInfo nextMusic() {
+        List<MusicPlayInfo> musicInfos;
         if (musicPlayInfoManager != null) {
             musicInfos = musicPlayInfoManager.getMusicPlayListData();
         } else {
@@ -179,7 +180,7 @@ public class MusicPlayerManager {
         if (playIndex == -1) {
             return null;
         }
-        MusicInfo musicInfo = null;
+        MusicPlayInfo musicInfo = null;
         switch (playModel) {
             case 0:
                 // 顺序播放

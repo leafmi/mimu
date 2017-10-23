@@ -19,7 +19,7 @@ public class MusicMessage implements Serializable {
     /**
      * 音频信息
      */
-    private MusicInfo musicInfo;
+    private MusicPlayInfo musicInfo;
     /**
      * 音乐类型
      */
@@ -29,7 +29,7 @@ public class MusicMessage implements Serializable {
      */
     private String hash;
 
-    public MusicMessage(MusicInfo musicInfo, int musicType) {
+    public MusicMessage(MusicPlayInfo musicInfo, int musicType) {
         this.musicInfo = musicInfo;
         this.musicType = musicType;
     }
@@ -50,11 +50,11 @@ public class MusicMessage implements Serializable {
         this.playProgress = playProgress;
     }
 
-    public MusicInfo getMusicInfo() {
+    public MusicPlayInfo getMusicInfo() {
         return musicInfo;
     }
 
-    public void setMusicInfo(MusicInfo musicInfo) {
+    public void setMusicInfo(MusicPlayInfo musicInfo) {
         this.musicInfo = musicInfo;
     }
 

@@ -27,12 +27,15 @@ public class LocalMusicInfo {
     private long duration;
     @Property(nameInDb = "title")
     private String title;
-    @Property(nameInDb = "artist_id")
-    private long artistId;
-    @Property(nameInDb = "album_id")
-    private long albumId;
+    @Property(nameInDb = "artist_name")
+    private String artistName;
+    @Property(nameInDb = "album_name")
+    private String albumName;
+    @Property(nameInDb = "album_pic_url")
+    private String albumPicUrl;
 
-    public LocalMusicInfo(long musicId, String data, long musicSize, long modifiedTime, long addTime, long duration, String title, long artistId, long albumId) {
+
+    public LocalMusicInfo(long musicId, String data, long musicSize, long modifiedTime, long addTime, long duration, String title, String artistName, String albumName, String albumPicUrl) {
         this.musicId = musicId;
         this.data = data;
         this.musicSize = musicSize;
@@ -40,13 +43,14 @@ public class LocalMusicInfo {
         this.addTime = addTime;
         this.duration = duration;
         this.title = title;
-        this.artistId = artistId;
-        this.albumId = albumId;
+        this.artistName = artistName;
+        this.albumName = albumName;
+        this.albumPicUrl = albumPicUrl;
     }
 
-    @Generated(hash = 674956314)
-    public LocalMusicInfo(Long _id, long musicId, String data, long musicSize, long modifiedTime, long addTime, long duration, String title, long artistId,
-            long albumId) {
+    @Generated(hash = 1538689197)
+    public LocalMusicInfo(Long _id, long musicId, String data, long musicSize, long modifiedTime, long addTime, long duration, String title, String artistName, String albumName,
+            String albumPicUrl) {
         this._id = _id;
         this.musicId = musicId;
         this.data = data;
@@ -55,8 +59,9 @@ public class LocalMusicInfo {
         this.addTime = addTime;
         this.duration = duration;
         this.title = title;
-        this.artistId = artistId;
-        this.albumId = albumId;
+        this.artistName = artistName;
+        this.albumName = albumName;
+        this.albumPicUrl = albumPicUrl;
     }
 
     @Generated(hash = 1287061425)
@@ -119,20 +124,28 @@ public class LocalMusicInfo {
         this.title = title;
     }
 
-    public long getArtistId() {
-        return artistId;
+    public String getArtistName() {
+        return artistName;
     }
 
-    public void setArtistId(long artistId) {
-        this.artistId = artistId;
+    public void setArtistName(String artistName) {
+        this.artistName = artistName;
     }
 
-    public long getAlbumId() {
-        return albumId;
+    public String getAlbumName() {
+        return albumName;
     }
 
-    public void setAlbumId(long albumId) {
-        this.albumId = albumId;
+    public void setAlbumName(String albumName) {
+        this.albumName = albumName;
+    }
+
+    public String getAlbumPicUrl() {
+        return albumPicUrl;
+    }
+
+    public void setAlbumPicUrl(String albumPicUrl) {
+        this.albumPicUrl = albumPicUrl;
     }
 
     public Long get_id() {

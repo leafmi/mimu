@@ -13,6 +13,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import musicdemo.jlang.com.mimu.bean.MusicInfo;
 import musicdemo.jlang.com.mimu.bean.MusicMessage;
+import musicdemo.jlang.com.mimu.bean.MusicPlayInfo;
 import musicdemo.jlang.com.mimu.event.message.EventMusicAction;
 import musicdemo.jlang.com.mimu.manager.AudioPlayerManager;
 import musicdemo.jlang.com.mimu.manager.MusicPlayInfoManager;
@@ -125,7 +126,7 @@ public class MusicPlayerService extends Service {
         try {
             mMediaPlayer = new IjkMediaPlayer();
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mMediaPlayer.setDataSource(musicMessage.getMusicInfo().getPath());
+            mMediaPlayer.setDataSource(musicMessage.getMusicInfo().getData());
             mMediaPlayer.prepareAsync();
 
             //设置当播放的状态
@@ -247,7 +248,7 @@ public class MusicPlayerService extends Service {
      * 上一曲
      */
     private void preMusic() {
-        MusicInfo musicInfo = musicPlayerManager.preMusic();
+        MusicPlayInfo musicInfo = musicPlayerManager.preMusic();
         if (musicInfo == null) {
             releasePlayer();
             resetPlayDataProgress();
@@ -262,7 +263,7 @@ public class MusicPlayerService extends Service {
      * 下一曲
      */
     private void nextMusic() {
-        MusicInfo musicInfo = musicPlayerManager.nextMusic();
+        MusicPlayInfo musicInfo = musicPlayerManager.nextMusic();
         if (musicInfo == null) {
             releasePlayer();
             resetPlayDataProgress();

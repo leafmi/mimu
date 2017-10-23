@@ -34,7 +34,7 @@
                 android:layout_weight="3">
 
                 <TextView
-                    android:id="@+id/songName"
+                    android:id="@+id/music_name"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:ellipsize="marquee"
@@ -46,10 +46,10 @@
                     android:textSize="13dp" />
 
                 <TextView
-                    android:id="@+id/singerName"
+                    android:id="@+id/artist_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/songName"
+                    android:layout_below="@+id/music_name"
                     android:layout_marginTop="2dp"
                     android:ellipsize="marquee"
                     android:lines="1"

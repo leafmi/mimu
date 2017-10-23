@@ -17,29 +17,38 @@ public class OlineMusicInfo {
     @Property(nameInDb = "data")
     private String data;
     @Property(nameInDb = "title")
-    private long title;
+    private String title;
+    @Property(nameInDb = "duration")
+    private long duration;
     @Property(nameInDb = "album_name")
     private String albumName;
     @Property(nameInDb = "artist_name")
-    private int artistName;
+    private String artistName;
+    @Property(nameInDb = "album_pic_url")
+    private String albumPicUrl;
 
-    public OlineMusicInfo(long musicId, String data, long title, String albumName, int artistName) {
+
+    public OlineMusicInfo(long musicId, String data, String title, long duration, String albumName, String artistName, String albumPicUrl) {
         this.musicId = musicId;
         this.data = data;
         this.title = title;
+        this.duration = duration;
         this.albumName = albumName;
         this.artistName = artistName;
+        this.albumPicUrl = albumPicUrl;
     }
 
-    @Generated(hash = 494193038)
-    public OlineMusicInfo(Long _id, long musicId, String data, long title, String albumName,
-            int artistName) {
+    @Generated(hash = 872015811)
+    public OlineMusicInfo(Long _id, long musicId, String data, String title, long duration, String albumName, String artistName,
+            String albumPicUrl) {
         this._id = _id;
         this.musicId = musicId;
         this.data = data;
         this.title = title;
+        this.duration = duration;
         this.albumName = albumName;
         this.artistName = artistName;
+        this.albumPicUrl = albumPicUrl;
     }
 
     @Generated(hash = 204555332)
@@ -62,12 +71,20 @@ public class OlineMusicInfo {
         this.data = data;
     }
 
-    public long getTitle() {
+    public String getTitle() {
         return title;
     }
 
-    public void setTitle(long title) {
+    public void setTitle(String title) {
         this.title = title;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
     }
 
     public String getAlbumName() {
@@ -78,12 +95,20 @@ public class OlineMusicInfo {
         this.albumName = albumName;
     }
 
-    public int getArtistName() {
+    public String getArtistName() {
         return artistName;
     }
 
-    public void setArtistName(int artistName) {
+    public void setArtistName(String artistName) {
         this.artistName = artistName;
+    }
+
+    public String getAlbumPicUrl() {
+        return albumPicUrl;
+    }
+
+    public void setAlbumPicUrl(String albumPicUrl) {
+        this.albumPicUrl = albumPicUrl;
     }
 
     public Long get_id() {

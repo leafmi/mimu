@@ -3,13 +3,22 @@ package musicdemo.jlang.com.mimu.activity;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -21,6 +30,7 @@ import musicdemo.jlang.com.mimu.ApplicationEx;
 import musicdemo.jlang.com.mimu.R;
 import musicdemo.jlang.com.mimu.adapter.LocalMusicFragmentAdapter;
 import musicdemo.jlang.com.mimu.bean.MusicMessage;
+import musicdemo.jlang.com.mimu.bean.MusicPlayInfo;
 import musicdemo.jlang.com.mimu.event.message.EventMusicAction;
 import musicdemo.jlang.com.mimu.fragment.AlbumsFragment;
 import musicdemo.jlang.com.mimu.fragment.ArtistsFragment;
@@ -29,10 +39,11 @@ import musicdemo.jlang.com.mimu.fragment.SongsFragment;
 import musicdemo.jlang.com.mimu.manager.AudioPlayerManager;
 import musicdemo.jlang.com.mimu.manager.MusicPlayInfoManager;
 import musicdemo.jlang.com.mimu.manager.MusicPlayerManager;
-import musicdemo.jlang.com.mimu.manager.PlayingListManager;
 import musicdemo.jlang.com.mimu.permission.PermissionListener;
 import musicdemo.jlang.com.mimu.receiver.AudioBroadcastReceiver;
 import musicdemo.jlang.com.mimu.service.MusicPlayerService;
+import musicdemo.jlang.com.mimu.util.ATEUtil;
+import musicdemo.jlang.com.mimu.util.ListenerUtil;
 import musicdemo.jlang.com.mimu.util.music.MusicAction;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener {
@@ -47,11 +58,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private TabLayout mLocalMusicTab;
     private ViewPager mLocalMusicViewPager;
     private View mLayoutPlayerContent, mBarPlay, mBarPause, mBarNext;
+    private ImageView mPlayBarArtist;
+    private TextView musicName, artistName;
 
-    /**
-     * 播放列表Manager
-     */
-    private PlayingListManager playingListManager;
     private AudioPlayerManager audioPlayerManager;
 
     private MusicPlayerManager musicPlayerManager;
@@ -71,6 +80,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         mLocalMusicTab = (TabLayout) findViewById(R.id.local_music_tab);
         mLocalMusicViewPager = (ViewPager) findViewById(R.id.local_music_viewPager);
         mLayoutPlayerContent = findViewById(R.id.layout_player_content);
+        mPlayBarArtist = (ImageView) findViewById(R.id.play_bar_artist);
+        musicName = (TextView) findViewById(R.id.music_name);
+        artistName = (TextView) findViewById(R.id.artist_name);
         mBarPlay = findViewById(R.id.bar_play);
         mBarPause = findViewById(R.id.bar_pause);
         mBarNext = findViewById(R.id.bar_next);
@@ -84,10 +96,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         musicPlayerManager = MusicPlayerManager.getInstance(this);
         musicPlayerManager.setMusicPlayStatus(AudioPlayerManager.STOP);
 
-        //获取播放列表Manager
-        playingListManager = PlayingListManager.getInstance();
         audioPlayerManager = AudioPlayerManager.getInstance(this, ApplicationEx.getInstance());
-
+        //获取播放列表信息
+        MusicPlayInfoManager.getInstance().getPlayListDetailInfo();
         //初始化Music 播放状态
         audioPlayerManager.setMusicPlayStatus(AudioPlayerManager.STOP);
 
@@ -190,6 +201,26 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             case MusicAction.ACTION_INIT_MUSIC:
                 break;
             case MusicAction.ACTION_SERVICE_PLAY_MUSIC:
+                MusicMessage musicMessage = MusicPlayInfoManager.getInstance().getMusicMessage();
+                MusicPlayInfo musicInfo = musicMessage.getMusicInfo();
+                Glide.with(this)
+                        .load(musicInfo.getAlbumPicUrl())
+                        .asBitmap()
+                        .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onLoadFailed(Exception e, Drawable errorDrawable) {
+                                super.onLoadFailed(e, errorDrawable);
+                                mPlayBarArtist.setImageDrawable(ATEUtil.getDefaultAlbumDrawable(MainActivity.this));
+                            }
+
+                            @Override
+                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                mPlayBarArtist.setImageBitmap(resource);
+                            }
+                        });
+                musicName.setText(musicInfo.getTitle());
+                artistName.setText(musicInfo.getArtistName());
                 mBarPlay.setVisibility(View.INVISIBLE);
                 mBarPause.setVisibility(View.VISIBLE);
                 break;

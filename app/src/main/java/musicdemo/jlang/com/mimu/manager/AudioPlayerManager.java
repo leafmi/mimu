@@ -18,8 +18,6 @@ public class AudioPlayerManager {
 
     private Context mContext;
     private ApplicationEx mApplicationEx;
-    private PlayingListManager playingListManager;
-
 
     /**
      * 正在播放
@@ -48,7 +46,6 @@ public class AudioPlayerManager {
     private AudioPlayerManager(Context mContext, ApplicationEx mApplicationEx) {
         this.mContext = mContext;
         this.mApplicationEx = mApplicationEx;
-        playingListManager = PlayingListManager.getInstance();
     }
 
     /***
@@ -119,122 +116,122 @@ public class AudioPlayerManager {
     }
 
 
-    /**
-     * 上一首
-     *
-     * @param playModel
-     */
-    public MusicInfo preMusic(int playModel) {
-        if (mApplicationEx.getCurMusicInfo() == null || mApplicationEx.getCurMusicMessage() == null || mApplicationEx.getCurMusicInfos() == null) {
-            return null;
-        }
-        //获取播放索引
-        int playIndex = getCurPlayIndex();
-        if (playIndex == -1) {
-            return null;
-        }
-        switch (playModel) {
-            case 0:
-                // 顺序播放
-                playIndex--;
-                if (playIndex < 0) {
-                    return null;
-                }
-                if (mApplicationEx.getCurMusicInfos().size() > 0) {
-                    return mApplicationEx.getCurMusicInfos().get(playIndex);
-                }
-                break;
-            case 1:
-                // 随机播放
-                playIndex = new Random().nextInt(mApplicationEx.getCurMusicInfos().size());
-                if (mApplicationEx.getCurMusicInfos().size() > 0) {
-                    return mApplicationEx.getCurMusicInfos().get(playIndex);
-                }
-                break;
-            case 2:
-                // 循环播放
-                playIndex--;
-                if (playIndex < 0) {
-                    playIndex = 0;
-                }
-                if (playIndex >= mApplicationEx.getCurMusicInfos().size()) {
-                    playIndex = 0;
-                }
-                if (mApplicationEx.getCurMusicInfos().size() != 0) {
-                    return mApplicationEx.getCurMusicInfos().get(playIndex);
-                }
-                break;
-            case 3:
-                // 单曲播放
-                return mApplicationEx.getCurMusicInfos().get(playIndex);
-        }
-        return null;
-    }
+//    /**
+//     * 上一首
+//     *
+//     * @param playModel
+//     */
+//    public MusicInfo preMusic(int playModel) {
+//        if (mApplicationEx.getCurMusicInfo() == null || mApplicationEx.getCurMusicMessage() == null || mApplicationEx.getCurMusicInfos() == null) {
+//            return null;
+//        }
+//        //获取播放索引
+//        int playIndex = getCurPlayIndex();
+//        if (playIndex == -1) {
+//            return null;
+//        }
+//        switch (playModel) {
+//            case 0:
+//                // 顺序播放
+//                playIndex--;
+//                if (playIndex < 0) {
+//                    return null;
+//                }
+//                if (mApplicationEx.getCurMusicInfos().size() > 0) {
+//                    return mApplicationEx.getCurMusicInfos().get(playIndex);
+//                }
+//                break;
+//            case 1:
+//                // 随机播放
+//                playIndex = new Random().nextInt(mApplicationEx.getCurMusicInfos().size());
+//                if (mApplicationEx.getCurMusicInfos().size() > 0) {
+//                    return mApplicationEx.getCurMusicInfos().get(playIndex);
+//                }
+//                break;
+//            case 2:
+//                // 循环播放
+//                playIndex--;
+//                if (playIndex < 0) {
+//                    playIndex = 0;
+//                }
+//                if (playIndex >= mApplicationEx.getCurMusicInfos().size()) {
+//                    playIndex = 0;
+//                }
+//                if (mApplicationEx.getCurMusicInfos().size() != 0) {
+//                    return mApplicationEx.getCurMusicInfos().get(playIndex);
+//                }
+//                break;
+//            case 3:
+//                // 单曲播放
+//                return mApplicationEx.getCurMusicInfos().get(playIndex);
+//        }
+//        return null;
+//    }
 
 
-    /**
-     * 下一首
-     *
-     * @param playModel 播放模式
-     * @return
-     */
-    public MusicPlayingInfo nextMusic(int playModel) {
-        if (playingListManager.getCurMusicMessage() == null || playingListManager.getCurrentPlayingList() == null) {
-            return null;
-        }
-        //获取播放索引
-        int playIndex = getCurPlayIndex();
-        if (playIndex == -1) {
-            return null;
-        }
-        MusicPlayingInfo playingList = null;
-        switch (playModel) {
-            case 0:
-                // 顺序播放
-                playIndex++;
-                if (playIndex >= playingListManager.getCurrentPlayingList().size()) {
-                    playIndex--;
-                } else {
-                    if (playingListManager.getCurrentPlayingList().size() > 0) {
-                        playingList = playingListManager.getCurrentPlayingList().get(playIndex);
-                    }
-                }
-                break;
-            case 1:
-                // 随机播放
-                playIndex = new Random().nextInt(playingListManager.getCurrentPlayingList().size());
-                if (playingListManager.getCurrentPlayingList().size() > 0) {
-                    playingList = playingListManager.getCurrentPlayingList().get(playIndex);
-                }
-                break;
-            case 2:
-                // 循环播放
-                playIndex++;
-                if (playIndex >= playingListManager.getCurrentPlayingList().size()) {
-                    playIndex = 0;
-                }
-                if (playingListManager.getCurrentPlayingList().size() > 0) {
-                    playingList = playingListManager.getCurrentPlayingList().get(playIndex);
-                }
-                break;
-            case 3:
-                // 单曲播放
-                playingList = playingListManager.getCurrentPlayingList().get(playIndex);
-        }
-        playingListManager.setCurrentPlayingIndex(playIndex);
-        return playingList;
-    }
-
-
-    /**
-     * 获取当前的播放索引
-     *
-     * @return 当前播放列表的索引
-     */
-    private int getCurPlayIndex() {
-//        return mApplicationEx.getPlayingIndex();
-        return playingListManager.getCurrentPlayingIndex();
-    }
+//    /**
+//     * 下一首
+//     *
+//     * @param playModel 播放模式
+//     * @return
+//     */
+//    public MusicPlayingInfo nextMusic(int playModel) {
+//        if (playingListManager.getCurMusicMessage() == null || playingListManager.getCurrentPlayingList() == null) {
+//            return null;
+//        }
+//        //获取播放索引
+//        int playIndex = getCurPlayIndex();
+//        if (playIndex == -1) {
+//            return null;
+//        }
+//        MusicPlayingInfo playingList = null;
+//        switch (playModel) {
+//            case 0:
+//                // 顺序播放
+//                playIndex++;
+//                if (playIndex >= playingListManager.getCurrentPlayingList().size()) {
+//                    playIndex--;
+//                } else {
+//                    if (playingListManager.getCurrentPlayingList().size() > 0) {
+//                        playingList = playingListManager.getCurrentPlayingList().get(playIndex);
+//                    }
+//                }
+//                break;
+//            case 1:
+//                // 随机播放
+//                playIndex = new Random().nextInt(playingListManager.getCurrentPlayingList().size());
+//                if (playingListManager.getCurrentPlayingList().size() > 0) {
+//                    playingList = playingListManager.getCurrentPlayingList().get(playIndex);
+//                }
+//                break;
+//            case 2:
+//                // 循环播放
+//                playIndex++;
+//                if (playIndex >= playingListManager.getCurrentPlayingList().size()) {
+//                    playIndex = 0;
+//                }
+//                if (playingListManager.getCurrentPlayingList().size() > 0) {
+//                    playingList = playingListManager.getCurrentPlayingList().get(playIndex);
+//                }
+//                break;
+//            case 3:
+//                // 单曲播放
+//                playingList = playingListManager.getCurrentPlayingList().get(playIndex);
+//        }
+//        playingListManager.setCurrentPlayingIndex(playIndex);
+//        return playingList;
+//    }
+//
+//
+//    /**
+//     * 获取当前的播放索引
+//     *
+//     * @return 当前播放列表的索引
+//     */
+//    private int getCurPlayIndex() {
+////        return mApplicationEx.getPlayingIndex();
+//        return playingListManager.getCurrentPlayingIndex();
+//    }
 
 
     //获取音乐播放状态
