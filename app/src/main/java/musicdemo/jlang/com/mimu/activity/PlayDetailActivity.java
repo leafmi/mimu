@@ -79,6 +79,12 @@ public class PlayDetailActivity extends BaseActivity implements View.OnClickList
         mPlayPre.setOnClickListener(this);
         mPlayPlay.setOnClickListener(this);
         mPlayNext.setOnClickListener(this);
+        mPlaySeek.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(View view, int i, int i1, int i2, int i3) {
+
+            }
+        });
     }
 
     @Override

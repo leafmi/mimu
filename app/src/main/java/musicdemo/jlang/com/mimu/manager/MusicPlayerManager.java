@@ -103,7 +103,6 @@ public class MusicPlayerManager {
         }
     }
 
-
     /**
      * 上一首
      *

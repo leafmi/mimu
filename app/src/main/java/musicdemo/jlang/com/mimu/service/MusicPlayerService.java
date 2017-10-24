@@ -18,6 +18,7 @@ import musicdemo.jlang.com.mimu.event.message.EventMusicAction;
 import musicdemo.jlang.com.mimu.manager.AudioPlayerManager;
 import musicdemo.jlang.com.mimu.manager.MusicPlayInfoManager;
 import musicdemo.jlang.com.mimu.manager.MusicPlayerManager;
+import musicdemo.jlang.com.mimu.manager.MusicToolsBarManager;
 import musicdemo.jlang.com.mimu.util.music.MusicAction;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
@@ -30,6 +31,7 @@ public class MusicPlayerService extends Service {
 
     private MusicPlayerManager musicPlayerManager;
     private MusicPlayInfoManager musicPlayInfoManager;
+    private MusicToolsBarManager musicToolsBarManager;
     /**
      * 播放器
      */
@@ -53,6 +55,8 @@ public class MusicPlayerService extends Service {
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
+        musicToolsBarManager = new MusicToolsBarManager();
+        musicToolsBarManager.onCreate(this);
         musicPlayerManager = MusicPlayerManager.getInstance(this);
         musicPlayInfoManager = MusicPlayInfoManager.getInstance();
     }
@@ -63,6 +67,7 @@ public class MusicPlayerService extends Service {
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
         }
+        musicToolsBarManager.onDestroy();
     }
 
     /**
@@ -93,7 +98,7 @@ public class MusicPlayerService extends Service {
                 pauseMusic();
                 break;
             case MusicAction.ACTION_SEEKTO_MUSIC:
-                seekToMusic();
+                seekToMusic(event.getMusicMessage());
                 break;
             case MusicAction.ACTION_PRE_MUSIC:
                 preMusic();
@@ -108,6 +113,7 @@ public class MusicPlayerService extends Service {
      * 播放音乐
      */
     private void playMusic(MusicMessage musicMessage) {
+        musicToolsBarManager.disPlayMusicToolsBar(musicMessage.getMusicInfo());
         releasePlayer();
         musicPlayInfoManager.setMusicMessage(musicMessage);
         //开始初始化音乐
@@ -157,24 +163,22 @@ public class MusicPlayerService extends Service {
             mMediaPlayer.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(IMediaPlayer mp) {
-//                    if (playingListManager.getCurMusicMessage() != null) {
-//                        MusicMessage audioMessage = playingListManager.getCurMusicMessage();
-//                        if (audioMessage.getPlayProgress() > 0) {
-//                            isSeekTo = true;
-//                            mMediaPlayer.seekTo(audioMessage.getPlayProgress());
-//                        } else {
-//                            mMediaPlayer.start();
-//                        }
-//
-//                    }
+                    MusicMessage musicMessage = musicPlayInfoManager.getMusicMessage();
+                    if (musicMessage != null) {
+                        if (musicMessage.getPlayProgress() > 0) {
+                            isSeekTo = true;
+                            mMediaPlayer.seekTo(musicMessage.getPlayProgress());
+                        } else {
+                            mMediaPlayer.start();
+                        }
+                    }
                     //获取歌曲的总时常
                     musicPlayInfoManager.setMusicDuration(mMediaPlayer.getDuration());
                     mMediaPlayer.start();
                     //设置当播放的状态
                     musicPlayerManager.setMusicPlayStatus(AudioPlayerManager.PLAYING);
                     //发送服播放音乐消息
-//                    postMusicServiceAction(MusicAction.ACTION_SERVICE_PLAY_MUSIC);
-                    EventBus.getDefault().postSticky(new EventMusicAction(MusicAction.ACTION_SERVICE_PLAY_MUSIC));
+                    postMusicServiceAction(MusicAction.ACTION_SERVICE_PLAY_MUSIC);
                 }
             });
 
@@ -240,8 +244,13 @@ public class MusicPlayerService extends Service {
     /**
      * 快进
      */
-    private void seekToMusic() {
-
+    private void seekToMusic(MusicMessage musicMessage) {
+        if (mMediaPlayer != null && musicPlayInfoManager != null) {
+            if (musicMessage != null) {
+                isSeekTo = true;
+                mMediaPlayer.seekTo(musicMessage.getPlayProgress());
+            }
+        }
     }
 
     /**
@@ -280,13 +289,23 @@ public class MusicPlayerService extends Service {
     private class PlayerRunAble implements Runnable {
         @Override
         public void run() {
+            int count = 10;
             while (true) {
                 try {
-                    if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
+                    if (!isSeekTo && mMediaPlayer != null && mMediaPlayer.isPlaying()) {
                         Thread.sleep(100);//方便后面用来刷新歌词
-                        musicPlayInfoManager.setMusicCurrentProcess(mMediaPlayer.getCurrentPosition());
-                        //发送正在播放消息
-                        postMusicServiceAction(MusicAction.ACTION_SERVICE_PLAYING_MUSIC);
+                        long currentPosition = mMediaPlayer.getCurrentPosition();
+                        musicPlayInfoManager.setMusicCurrentProcess(currentPosition);
+                        musicPlayInfoManager.getMusicMessage().setPlayProgress(currentPosition);
+                        //每一秒发送消息刷新界面或者歌曲播放完成
+                        if (count == 10
+                                || currentPosition == musicPlayInfoManager.getMusicMessage().getMusicInfo().getDuration()) {
+                            //发送正在播放消息
+                            count = 1;
+                            postMusicServiceAction(MusicAction.ACTION_SERVICE_PLAYING_MUSIC);
+                        } else {
+                            count++;
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -299,6 +318,9 @@ public class MusicPlayerService extends Service {
      * 释放播放器
      */
     private void releasePlayer() {
+        if (mPlayerThread != null) {
+            mPlayerThread = null;
+        }
         if (mMediaPlayer != null) {
             if (mMediaPlayer.isPlaying()) {
                 mMediaPlayer.stop();

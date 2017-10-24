@@ -37,4 +37,6 @@ public class Constants {
     public static final String BASE_API_URL_LASTFM = "http://ws.audioscrobbler.com/2.0/";
     public static final String BASE_API_URL_KUGOU = "http://lyrics.kugou.com/";
 
+
+    public static final int MUSIC_TOOLS_BAR_ID = 7851;
 }
