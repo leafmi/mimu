@@ -131,6 +131,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.layout_player_content:
                 startActivity(new Intent(this, PlayDetailActivity.class));
+                overridePendingTransition(R.anim.pop_up_in, R.anim.anim_empty);
+
                 break;
             case R.id.bar_play:
                 musicPlayerManager.playAction();

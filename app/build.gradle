@@ -64,4 +64,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
     //event bus
     compile 'org.greenrobot:eventbus:3.0.0'
+    //    圆角ImageView控件
+    compile 'com.makeramen:roundedimageview:2.3.0'
 }

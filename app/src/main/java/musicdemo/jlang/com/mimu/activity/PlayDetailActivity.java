@@ -1,13 +1,16 @@
 package musicdemo.jlang.com.mimu.activity;
 
+import android.animation.TypeEvaluator;
+import android.animation.ValueAnimator;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -15,18 +18,17 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import musicdemo.jlang.com.mimu.R;
-import musicdemo.jlang.com.mimu.bean.MusicInfo;
 import musicdemo.jlang.com.mimu.bean.MusicMessage;
 import musicdemo.jlang.com.mimu.bean.MusicPlayInfo;
 import musicdemo.jlang.com.mimu.event.message.EventMusicAction;
 import musicdemo.jlang.com.mimu.manager.MusicPlayInfoManager;
 import musicdemo.jlang.com.mimu.manager.MusicPlayerManager;
 import musicdemo.jlang.com.mimu.util.ATEUtil;
+import musicdemo.jlang.com.mimu.util.BitmapUtils;
 import musicdemo.jlang.com.mimu.util.music.MusicAction;
 import musicdemo.jlang.com.mimu.view.PlayerSeekBar;
 
@@ -49,6 +51,9 @@ public class PlayDetailActivity extends BaseActivity implements View.OnClickList
         initData();
         listener();
         registerEventBus();
+        startRotate();
+        Log.i("js_flag","onCreate");
+
     }
 
     private void initView() {
@@ -106,6 +111,7 @@ public class PlayDetailActivity extends BaseActivity implements View.OnClickList
 
     @Override
     protected void onDestroy() {
+        stopRotate();
         super.onDestroy();
         unregisterEventBus();
     }
@@ -128,22 +134,27 @@ public class PlayDetailActivity extends BaseActivity implements View.OnClickList
                             public void onLoadFailed(Exception e, Drawable errorDrawable) {
                                 super.onLoadFailed(e, errorDrawable);
                                 mImgAlbum.setImageDrawable(ATEUtil.getDefaultAlbumDrawable(PlayDetailActivity.this));
-                                setBackgroundDrawable(mImgAlbum.getDrawable());
+                                setBackgroundDrawable(ATEUtil.getDefaultAlbumDrawable(PlayDetailActivity.this));
                             }
 
                             @Override
                             public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
                                 mImgAlbum.setImageBitmap(resource);
-                                setBackgroundDrawable(mImgAlbum.getDrawable());
+                                setBackgroundBitmap(resource);
                             }
                         });
             }
         }
     }
-
+    private void setBackgroundBitmap(Bitmap bitmap){
+        mImgBg.setImageBitmap(BitmapUtils.getAssetsVideoGlassBmp(bitmap,musicPlayInfoManager.getMusicMessage().getMusicInfo().getTitle()));
+    }
 
     private void setBackgroundDrawable(Drawable result) {
         mImgBg.setImageDrawable(result);
+        if (result instanceof  BitmapDrawable)
+            mImgBg.setImageBitmap(BitmapUtils.getAssetsVideoGlassBmp(((BitmapDrawable) result).getBitmap(),musicPlayInfoManager.getMusicMessage().getMusicInfo().getTitle()));
+
 //        if (result != null) {
 //            if (mImgBg.getDrawable() != null) {
 //                final TransitionDrawable td =
@@ -160,6 +171,12 @@ public class PlayDetailActivity extends BaseActivity implements View.OnClickList
 //        }
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.anim_empty, R.anim.pop_down_out);
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMusicActionEvent(EventMusicAction event) {
         switch (event.getAction()) {
@@ -171,6 +188,32 @@ public class PlayDetailActivity extends BaseActivity implements View.OnClickList
                 mPlaySeek.setProgress((int) musicPlayInfoManager.getMusicCurrentProcess());
                 Log.d("TAG_PROCESS", musicPlayInfoManager.getMusicCurrentProcess() + "");
                 break;
+        }
+    }
+
+    private ValueAnimator valueAnimator;
+    private void startRotate(){
+        if (valueAnimator!=null){
+            valueAnimator.start();
+        }else {
+            valueAnimator = new ValueAnimator();
+            valueAnimator.setRepeatCount(-1);
+            valueAnimator.setDuration(10000);
+            valueAnimator.setObjectValues("");
+            valueAnimator.setInterpolator(new LinearInterpolator());
+            valueAnimator.setEvaluator(new TypeEvaluator() {
+                @Override
+                public Object evaluate(float fraction, Object startValue, Object endValue) {
+                    mImgAlbum.setRotation(fraction * 360);
+                    return null;
+                }
+            });
+            valueAnimator.start();
+        }
+    }
+    private void stopRotate(){
+        if (valueAnimator!=null){
+            valueAnimator.cancel();
         }
     }
 }
