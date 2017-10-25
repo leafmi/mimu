@@ -22,11 +22,14 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import musicdemo.jlang.com.mimu.R;
 import musicdemo.jlang.com.mimu.activity.MainActivity;
+import musicdemo.jlang.com.mimu.bean.MusicMessage;
 import musicdemo.jlang.com.mimu.bean.MusicPlayInfo;
 import musicdemo.jlang.com.mimu.event.message.EventCancelMusicToolsBar;
 import musicdemo.jlang.com.mimu.event.message.EventMusicAction;
+import musicdemo.jlang.com.mimu.event.message.EventMusicFavourite;
 import musicdemo.jlang.com.mimu.receiver.MusicToolsBarReceiver;
 import musicdemo.jlang.com.mimu.util.Constants;
+import musicdemo.jlang.com.mimu.util.IntentExtraName;
 import musicdemo.jlang.com.mimu.util.music.MusicAction;
 import musicdemo.jlang.com.mimu.util.music.MusicPlaySate;
 
@@ -221,6 +224,12 @@ public class MusicToolsBarManager {
         PendingIntent intent_fav = PendingIntent.getBroadcast(mContext, 4, fav,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         mRemoteViews.setOnClickPendingIntent(R.id.img_fav, intent_fav);
+        if (musicPlayInfo.isFavourite()) {
+            mRemoteViews.setImageViewResource(R.id.img_fav, R.drawable.play_icn_loved);
+        } else {
+            mRemoteViews.setImageViewResource(R.id.img_fav, R.drawable.play_icn_love);
+        }
+
 
         Intent close = new Intent();
         close.setAction(MusicToolsBarReceiver.ACTION_TOOLS_BAR_CLOSE);
@@ -314,5 +323,21 @@ public class MusicToolsBarManager {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onCancelMusicToolsBarEvent(EventCancelMusicToolsBar event) {
         cancelMusicToolsBar();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMusicFavouriteEvent(EventMusicFavourite event) {
+        MusicMessage musicMessage = MusicPlayInfoManager.getInstance().getMusicMessage();
+        if (musicMessage != null) {
+            MusicPlayInfo musicInfo = musicMessage.getMusicInfo();
+            if (musicInfo != null) {
+                if (musicInfo.isFavourite()) {
+                    mRemoteViews.setImageViewResource(R.id.img_fav, R.drawable.play_icn_loved);
+                } else {
+                    mRemoteViews.setImageViewResource(R.id.img_fav, R.drawable.play_icn_love);
+                }
+                updateToolsBar();
+            }
+        }
     }
 }

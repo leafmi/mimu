@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -24,6 +25,7 @@ import musicdemo.jlang.com.mimu.bean.MusicInfo;
 import musicdemo.jlang.com.mimu.bean.MusicMessage;
 import musicdemo.jlang.com.mimu.bean.MusicPlayInfo;
 import musicdemo.jlang.com.mimu.event.message.EventMusicAction;
+import musicdemo.jlang.com.mimu.fragment.PlayQueueFragment;
 import musicdemo.jlang.com.mimu.manager.MusicPlayInfoManager;
 import musicdemo.jlang.com.mimu.manager.MusicPlayerManager;
 import musicdemo.jlang.com.mimu.util.ATEUtil;
@@ -32,7 +34,7 @@ import musicdemo.jlang.com.mimu.view.PlayerSeekBar;
 
 public class PlayDetailActivity extends BaseActivity implements View.OnClickListener {
 
-    private ImageView mImgBg, mPlayPre, mPlayPlay, mPlayNext, mImgAlbum;
+    private ImageView mImgBg, mPlayPre, mPlayPlay, mPlayNext, mImgAlbum, mPlayQueue;
     private PlayerSeekBar mPlaySeek;
     private MusicPlayInfoManager musicPlayInfoManager;
     private MusicPlayerManager musicPlayerManager;
@@ -59,6 +61,7 @@ public class PlayDetailActivity extends BaseActivity implements View.OnClickList
         mPlayNext = (ImageView) findViewById(R.id.playing_next);
         mPlaySeek = (PlayerSeekBar) findViewById(R.id.play_seek);
         mImgAlbum = (ImageView) findViewById(R.id.img_album);
+        mPlayQueue = (ImageView) findViewById(R.id.playing_queue);
     }
 
     private void initData() {
@@ -79,10 +82,23 @@ public class PlayDetailActivity extends BaseActivity implements View.OnClickList
         mPlayPre.setOnClickListener(this);
         mPlayPlay.setOnClickListener(this);
         mPlayNext.setOnClickListener(this);
-        mPlaySeek.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+        mPlayQueue.setOnClickListener(this);
+        mPlaySeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onScrollChange(View view, int i, int i1, int i2, int i3) {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                MusicMessage musicMessage = musicPlayInfoManager.getMusicMessage();
+                musicMessage.setPlayProgress(seekBar.getProgress());
+                EventBus.getDefault().post(new EventMusicAction(MusicAction.ACTION_SEEKTO_MUSIC, musicMessage));
             }
         });
     }
@@ -99,6 +115,9 @@ public class PlayDetailActivity extends BaseActivity implements View.OnClickList
             case R.id.playing_next:
                 musicPlayerManager.playAction(MusicAction.ACTION_NEXT_MUSIC, null, -1);
                 Log.d("TAG_DATA_DETAIL", musicPlayInfoManager.getMusicPlayListData().size() + "");
+                break;
+            case R.id.playing_queue:
+                new PlayQueueFragment().show(getFragmentManager(),"da");
                 break;
         }
     }

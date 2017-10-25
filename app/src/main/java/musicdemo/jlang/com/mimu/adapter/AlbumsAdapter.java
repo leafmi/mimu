@@ -12,7 +12,7 @@ import java.util.List;
 
 import musicdemo.jlang.com.mimu.R;
 import musicdemo.jlang.com.mimu.bean.Album;
-import musicdemo.jlang.com.mimu.fragment.RecyclerViewOnItemClickListener;
+import musicdemo.jlang.com.mimu.interfac.RecyclerViewOnItemClickListener;
 import musicdemo.jlang.com.mimu.util.ListenerUtil;
 
 /**

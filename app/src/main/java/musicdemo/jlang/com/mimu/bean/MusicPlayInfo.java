@@ -14,10 +14,12 @@ public class MusicPlayInfo {
     private String albumPicUrl;//专辑图片Url
     private long duration;//歌曲时长
     private int type;//歌曲类型
-    private long orderFirst;
-    private long orderSecond;
+    private boolean isFavourite;//是否是喜欢的
+    private int orderFirst;
+    private int orderSecond;
 
-    public MusicPlayInfo(long musicId, String data, String title, String artistName, String albumName, String albumPicUrl, long duration, int type, long orderFirst, long orderSecond) {
+    public MusicPlayInfo(long musicId, String data, String title, String artistName, String albumName,
+                         String albumPicUrl, long duration, int type, int orderFirst, int orderSecond) {
         this.musicId = musicId;
         this.data = data;
         this.title = title;
@@ -102,19 +104,27 @@ public class MusicPlayInfo {
         this.type = type;
     }
 
-    public long getOrderFirst() {
+    public boolean isFavourite() {
+        return isFavourite;
+    }
+
+    public void setFavourite(boolean favourite) {
+        isFavourite = favourite;
+    }
+
+    public int getOrderFirst() {
         return orderFirst;
     }
 
-    public void setOrderFirst(long orderFirst) {
+    public void setOrderFirst(int orderFirst) {
         this.orderFirst = orderFirst;
     }
 
-    public long getOrderSecond() {
+    public int getOrderSecond() {
         return orderSecond;
     }
 
-    public void setOrderSecond(long orderSecond) {
+    public void setOrderSecond(int orderSecond) {
         this.orderSecond = orderSecond;
     }
 }

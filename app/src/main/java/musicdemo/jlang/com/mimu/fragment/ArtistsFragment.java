@@ -21,6 +21,7 @@ import musicdemo.jlang.com.mimu.activity.ArtistDetailActivity;
 import musicdemo.jlang.com.mimu.adapter.ArtistAdapter;
 import musicdemo.jlang.com.mimu.bean.Artist;
 import musicdemo.jlang.com.mimu.dataloader.ArtistLoader;
+import musicdemo.jlang.com.mimu.interfac.RecyclerViewOnItemClickListener;
 
 /**
  * Created by JLang on 2017/10/16.
@@ -59,7 +60,7 @@ public class ArtistsFragment extends Fragment implements RecyclerViewOnItemClick
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         mArtistsRecyclerView.setLayoutManager(mLayoutManager);
 
-        getAllArtists();
+//        getAllArtists();
     }
 
 

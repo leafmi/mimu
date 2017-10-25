@@ -25,6 +25,7 @@ import musicdemo.jlang.com.mimu.bean.FolderInfo;
 import musicdemo.jlang.com.mimu.bean.MusicInfo;
 import musicdemo.jlang.com.mimu.dataloader.FolderLoader;
 import musicdemo.jlang.com.mimu.dataloader.SongLoader;
+import musicdemo.jlang.com.mimu.interfac.RecyclerViewOnItemClickListener;
 
 /**
  * Created by JLang on 2017/10/16.
@@ -62,7 +63,7 @@ public class FoldersFragment extends Fragment implements RecyclerViewOnItemClick
     private void initData() {
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         mFoldersRecyclerView.setLayoutManager(mLayoutManager);
-        getAllMusicFolders();
+//        getAllMusicFolders();
     }
 
     /**
