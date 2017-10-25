@@ -1,7 +1,6 @@
 package musicdemo.jlang.com.mimu.activity;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -9,7 +8,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -40,10 +38,8 @@ import musicdemo.jlang.com.mimu.manager.AudioPlayerManager;
 import musicdemo.jlang.com.mimu.manager.MusicPlayInfoManager;
 import musicdemo.jlang.com.mimu.manager.MusicPlayerManager;
 import musicdemo.jlang.com.mimu.permission.PermissionListener;
-import musicdemo.jlang.com.mimu.receiver.AudioBroadcastReceiver;
 import musicdemo.jlang.com.mimu.service.MusicPlayerService;
 import musicdemo.jlang.com.mimu.util.ATEUtil;
-import musicdemo.jlang.com.mimu.util.ListenerUtil;
 import musicdemo.jlang.com.mimu.util.music.MusicAction;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener {
@@ -98,7 +94,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
         audioPlayerManager = AudioPlayerManager.getInstance(this, ApplicationEx.getInstance());
         //获取播放列表信息
-        MusicPlayInfoManager.getInstance().getPlayListDetailInfo();
+        MusicPlayInfoManager.getInstance().getCurrentPlayListForDB();
         //初始化Music 播放状态
         audioPlayerManager.setMusicPlayStatus(AudioPlayerManager.STOP);
 

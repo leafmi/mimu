@@ -14,6 +14,7 @@ import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.annotations.NonNull;
 import musicdemo.jlang.com.mimu.bean.MusicInfo;
+import musicdemo.jlang.com.mimu.util.ListenerUtil;
 import musicdemo.jlang.com.mimu.util.PreferencesUtility;
 
 /**
@@ -42,7 +43,8 @@ public class SongLoader {
                         long albumId = cursor.getLong(7);
                         String path = cursor.getString(8);
                         long size = cursor.getLong(9);
-                        arrayList.add(new MusicInfo(id, albumId, artistId, title, artist, album, duration, trackNumber, path, size));
+                        arrayList.add(new MusicInfo(id, albumId, artistId, title, artist, album, duration, trackNumber, path, size
+                                , ListenerUtil.getAlbumArtUri(albumId).toString()));
                     }
                     while (cursor.moveToNext());
                 if (cursor != null) {

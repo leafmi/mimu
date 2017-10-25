@@ -90,7 +90,12 @@ public class MusicPlayerManager {
     }
 
     public void playAction() {
-        switch (getMusicPlayStatus()) {
+        playAction(getMusicPlayStatus());
+
+    }
+
+    public void playAction(int action) {
+        switch (action) {
             case MusicPlaySate.PLAYING:
                 playAction(MusicAction.ACTION_PAUSE_MUSIC, null, -1);
                 break;
@@ -237,6 +242,16 @@ public class MusicPlayerManager {
     public void setMusicPlayStatus(int playStatus) {
         PreferencesUtility.getInstance(mContext).setMusicPlayStatus(playStatus);
     }
+
+    /**
+     * 当前是否正在播放音乐
+     *
+     * @return true：正在播放、false：未播放
+     */
+    public boolean isMusicPlaying() {
+        return getMusicPlayStatus() == MusicPlaySate.PLAYING;
+    }
+
 
     public int getMusicPlayModel() {
         return PreferencesUtility.getInstance(mContext).getMusicPlayModel();

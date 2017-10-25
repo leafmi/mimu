@@ -6,8 +6,14 @@ import android.content.Intent;
 
 import org.greenrobot.eventbus.EventBus;
 
+import musicdemo.jlang.com.mimu.bean.MusicMessage;
+import musicdemo.jlang.com.mimu.bean.MusicPlayInfo;
 import musicdemo.jlang.com.mimu.event.message.EventCancelMusicToolsBar;
+import musicdemo.jlang.com.mimu.event.message.EventMusicFavourite;
+import musicdemo.jlang.com.mimu.manager.FavouriteMusicManager;
+import musicdemo.jlang.com.mimu.manager.MusicPlayInfoManager;
 import musicdemo.jlang.com.mimu.manager.MusicPlayerManager;
+import musicdemo.jlang.com.mimu.util.IntentExtraName;
 import musicdemo.jlang.com.mimu.util.music.MusicAction;
 
 /**
@@ -49,6 +55,20 @@ public class MusicToolsBarReceiver extends BroadcastReceiver {
                 MusicPlayerManager.getInstance(context).playAction(MusicAction.ACTION_NEXT_MUSIC, null, -1);
                 break;
             case ACTION_TOOLS_BAR_FAV_MUSIC:
+                MusicMessage musicMessage = MusicPlayInfoManager.getInstance().getMusicMessage();
+                if (musicMessage != null) {
+                    MusicPlayInfo musicInfo = musicMessage.getMusicInfo();
+                    if (musicInfo != null) {
+                        boolean favourite = musicInfo.isFavourite();
+                        if (favourite) {
+                            new FavouriteMusicManager().deleteFavouriteMusic(musicInfo.getMusicId(), musicInfo.getData());
+                        } else {
+                            new FavouriteMusicManager().addFavouriteMusic(musicInfo.getMusicId(), musicInfo.getData());
+                        }
+                        musicInfo.setFavourite(!favourite);
+                        EventBus.getDefault().post(new EventMusicFavourite());
+                    }
+                }
                 break;
             case ACTION_TOOLS_BAR_CLOSE:
                 MusicPlayerManager.getInstance(context).playAction(MusicAction.ACTION_PAUSE_MUSIC, null, -1);

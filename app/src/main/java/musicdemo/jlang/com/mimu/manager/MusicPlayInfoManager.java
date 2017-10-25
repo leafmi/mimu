@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
+import org.greenrobot.greendao.query.CursorQuery;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,8 +19,11 @@ import musicdemo.jlang.com.mimu.bean.MusicMessage;
 import musicdemo.jlang.com.mimu.bean.MusicPlayInfo;
 import musicdemo.jlang.com.mimu.greendao.SQLiteOpenHelperManager;
 import musicdemo.jlang.com.mimu.greendao.entity.MusicPlayingInfo;
+import musicdemo.jlang.com.mimu.greendao.entity.OlineMusicInfo;
 import musicdemo.jlang.com.mimu.greendao.gen.DaoSession;
 import musicdemo.jlang.com.mimu.greendao.gen.MusicPlayingInfoDao;
+import musicdemo.jlang.com.mimu.greendao.gen.OlineMusicInfoDao;
+import musicdemo.jlang.com.mimu.util.ListenerUtil;
 import musicdemo.jlang.com.mimu.util.PreferencesUtility;
 
 /**
@@ -34,12 +39,7 @@ public class MusicPlayInfoManager {
     private long musicCurrentProcess;
     private int currentPlayingIndex = -1;
     private MusicMessage musicMessage;
-    //    private List<MusicInfo> musicPlayListData = new ArrayList<>();
     List<MusicPlayInfo> musicPlayListData = new ArrayList<MusicPlayInfo>();
-    /**
-     * 当前播放歌单集合数据
-     */
-    private List<MusicPlayingInfo> currentPlayingList = new ArrayList<>();
     private Map<String, MusicPlayInfo> musicSource = new HashMap<>();
 
 
@@ -72,10 +72,6 @@ public class MusicPlayInfoManager {
         this.musicCurrentProcess = musicCurrentProcess;
     }
 
-    public List<MusicPlayingInfo> getCurrentPlayingList() {
-        return currentPlayingList;
-    }
-
     public List<MusicPlayInfo> getMusicPlayListData() {
         return musicPlayListData;
     }
@@ -103,6 +99,7 @@ public class MusicPlayInfoManager {
      */
     public void addLocalPlayingList(List<MusicInfo> musicInfos, int sourceId) {
         int size = musicInfos.size();
+        List<MusicPlayingInfo> currentPlayingList = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             MusicInfo musicInfo = musicInfos.get(i);
             currentPlayingList.add(new MusicPlayingInfo(musicInfo.id, musicInfo.path, i, 0));
@@ -117,6 +114,7 @@ public class MusicPlayInfoManager {
             //保存歌单资源Id
             PreferencesUtility.getInstance(mContext).setCurrentPlayingListSourceId(sourceId);
         }
+        getCurrentPlayListForDB();
     }
 
     /**
@@ -124,47 +122,90 @@ public class MusicPlayInfoManager {
      *
      * @param musicInfo
      */
-    public void addLocalPlayingList(MusicInfo musicInfo) {
-//        if (musicInfo == null || currentPlayingInfo == null) {
-//            return;
-//        }
-//        musicSource.put(musicInfo.path, musicInfo);
-//        MusicPlayingInfo playingList = new MusicPlayingInfo(musicInfo.id, musicInfo.path
-//                , currentPlayingInfo.getOrderFirst()
-//                , currentPlayingInfo.getOrderSecond() + 1);
-//
-//        currentPlayingList.add(currentPlayingIndex, playingList);
-//
-//        DaoSession daoSession = SQLiteOpenHelperManager.createDaoSession(mApplicationEx, true);
-//        if (daoSession != null) {
-//            MusicPlayingListDao musicPlayingListDao = daoSession.getMusicPlayingListDao();
-//            musicPlayingListDao.insertOrReplace(playingList);
-//        }
+    public void addMusicInfoToPlayingList(MusicInfo musicInfo) {
+        if (musicInfo == null) {
+            return;
+        }
+        DaoSession daoSession = SQLiteOpenHelperManager.createDaoSession(mContext, true);
+        MusicPlayInfo playMusicInfo = getPlayMusicInfo();
+
+        if (playMusicInfo == null) {
+            playMusicInfo = musicPlayListData.get(0);
+        }
+        MusicPlayingInfo playingList = new MusicPlayingInfo(musicInfo.id, musicInfo.path
+                , playMusicInfo.getOrderFirst()
+                , playMusicInfo.getOrderSecond() + 1);
+
+        if (daoSession != null) {
+            MusicPlayingInfoDao musicPlayingInfoDao = daoSession.getMusicPlayingInfoDao();
+            musicPlayingInfoDao.insertOrReplace(playingList);
+            if (musicInfo.getType() == MusicInfo.NET) {
+                //存储到OLine Music Info 中
+                OlineMusicInfoDao olineMusicInfoDao = daoSession.getOlineMusicInfoDao();
+                CursorQuery cursorQuery = olineMusicInfoDao.queryBuilder().where(OlineMusicInfoDao.Properties.Data.eq(musicInfo.getPath())).buildCursor();
+                Cursor query = cursorQuery.query();
+                int count = query.getCount();
+                if (count <= 0) {
+                    OlineMusicInfo olineMusicInfo = new OlineMusicInfo(musicInfo.id
+                            , musicInfo.getPath()
+                            , musicInfo.title
+                            , musicInfo.duration
+                            , musicInfo.albumName
+                            , musicInfo.getArtistName()
+                            , musicInfo.getAlbumUrl());
+                    olineMusicInfoDao.insert(olineMusicInfo);
+                }
+            }
+        }
+
+        MusicPlayInfo musicPlayInfo
+                = new MusicPlayInfo(musicInfo.id, musicInfo.getPath(), musicInfo.title, musicInfo.artistName
+                , musicInfo.getAlbumName(), musicInfo.getAlbumUrl()
+                , musicInfo.duration, musicInfo.getType(), playMusicInfo.getOrderFirst(), playMusicInfo.getOrderSecond() + 1);
+        musicPlayListData.add(++currentPlayingIndex, musicPlayInfo);
+        musicSource.put(musicInfo.getPath(), musicPlayInfo);
     }
 
 
     /**
      * 计算当前播放Id
      *
-     * @param playData 当前播放音乐数据地址
+     * @param musicInfo 当前播放音乐数据对象
      */
-    public void calcCurrentPLayingIndex(String playData) {
-        int size = musicPlayListData.size();
-        for (int i = 0; i < size; i++) {
-            MusicPlayInfo playingList = musicPlayListData.get(i);
-            if (playingList.getData().equals(playData)) {
-                currentPlayingIndex = i;
-                return;
+    public void calcCurrentPLayingIndex(MusicInfo musicInfo) {
+        if (!musicSource.containsKey(musicInfo.getPath())) {
+            //不存在添加到列表下一曲，并存进数据库
+            //TODO 暂时这样处理，后面优化，有关列表点击播放的都需要重新思考。
+            addMusicInfoToPlayingList(musicInfo);
+        } else {
+            int size = musicPlayListData.size();
+            for (int i = 0; i < size; i++) {
+                MusicPlayInfo playingList = musicPlayListData.get(i);
+                if (playingList.getData().equals(musicInfo.getPath())) {
+                    currentPlayingIndex = i;
+                    return;
+                }
             }
         }
     }
 
-    public MusicPlayInfo getPlayInfo() {
+    public MusicPlayInfo getPlayMusicInfo() {
+        if (musicMessage != null) {
+            return musicMessage.getMusicInfo();
+        }
+        return null;
+    }
+
+    public MusicPlayInfo getPlayMusicInfoForIndex() {
         return musicPlayListData.get(currentPlayingIndex);
     }
 
-    public void getPlayListDetailInfo() {
+
+    public void getCurrentPlayListForDB() {
         DaoSession daoSession = SQLiteOpenHelperManager.createDaoSession(mContext, true);
+        if (daoSession == null) {
+            return;
+        }
         String strSql = "SELECT music_id,data,title,album_name,album_pic_url,artist_name,duration,order_first,order_second from" +
                 "(" +
                 "SELECT music_playing_info.music_id,music_playing_info.data,music_playing_info.order_first,music_playing_info.order_second," +
@@ -189,8 +230,8 @@ public class MusicPlayInfoManager {
                 String albumPicUrl = cursor.getString(4);
                 String artistName = cursor.getString(5);
                 long duration = cursor.getLong(6);
-                long orderFirst = cursor.getLong(7);
-                long orderSecond = cursor.getLong(8);
+                int orderFirst = cursor.getInt(7);
+                int orderSecond = cursor.getInt(8);
                 int type = musicId != -1 ? MusicInfo.LOCAL : MusicInfo.NET;
                 MusicPlayInfo musicPlayInfo = new MusicPlayInfo(musicId, data, title, artistName, albumName, albumPicUrl, duration, type, orderFirst, orderSecond);
                 musicPlayListData.add(musicPlayInfo);
@@ -198,5 +239,44 @@ public class MusicPlayInfoManager {
             } while (cursor.moveToNext());
             cursor.close();
         }
+    }
+
+    public void clearCurrentPlayListAndDB() {
+        DaoSession daoSession = SQLiteOpenHelperManager.createDaoSession(mContext, true);
+        if (daoSession == null) {
+            return;
+        }
+        daoSession.getMusicPlayingInfoDao().deleteAll();
+        musicPlayListData.clear();
+        musicSource.clear();
+        musicMessage = null;
+        //歌单资源Id 为默认
+        PreferencesUtility.getInstance(mContext).setCurrentPlayingListSourceId(0);
+    }
+
+    public void clearCurrentPlayListAndDB(int index) {
+        try {
+            DaoSession daoSession = SQLiteOpenHelperManager.createDaoSession(mContext, true);
+            if (daoSession == null) {
+                return;
+            }
+            MusicPlayInfo musicPlayInfo = musicPlayListData.get(index);
+            if (musicPlayInfo != null) {
+                daoSession.getMusicPlayingInfoDao()
+                        .queryBuilder()
+                        .where(MusicPlayingInfoDao.Properties.Data.eq(musicPlayInfo.getData()))
+                        .buildDelete()
+                        .executeDeleteWithoutDetachingEntities();
+                musicPlayListData.remove(index);
+                musicSource.remove(musicPlayInfo.getData());
+                if (index == 0) {
+                    //歌单资源Id 为默认
+                    PreferencesUtility.getInstance(mContext).setCurrentPlayingListSourceId(0);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }

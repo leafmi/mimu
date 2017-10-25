@@ -5,11 +5,11 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,9 +24,9 @@ import musicdemo.jlang.com.mimu.bean.MusicPlayInfo;
 import musicdemo.jlang.com.mimu.dataloader.SongLoader;
 import musicdemo.jlang.com.mimu.greendao.SQLiteOpenHelperManager;
 import musicdemo.jlang.com.mimu.greendao.entity.LocalMusicInfo;
-import musicdemo.jlang.com.mimu.greendao.entity.MusicPlayingInfo;
 import musicdemo.jlang.com.mimu.greendao.gen.DaoSession;
 import musicdemo.jlang.com.mimu.greendao.gen.LocalMusicInfoDao;
+import musicdemo.jlang.com.mimu.interfac.RecyclerViewOnItemClickListener;
 import musicdemo.jlang.com.mimu.manager.MusicPlayInfoManager;
 import musicdemo.jlang.com.mimu.manager.MusicPlayerManager;
 import musicdemo.jlang.com.mimu.util.ListenerUtil;
@@ -138,10 +138,11 @@ public class SongsFragment extends Fragment implements RecyclerViewOnItemClickLi
             //创建新的播放列表
             MusicPlayInfoManager.getInstance().addLocalPlayingList(musicInfos, -1);
         } else {
+            //判断是否存在于歌单中
             //计算播放Id
-            MusicPlayInfoManager.getInstance().calcCurrentPLayingIndex(musicInfo.getPath());
+            MusicPlayInfoManager.getInstance().calcCurrentPLayingIndex(musicInfo);
         }
-        MusicPlayInfo playInfo = MusicPlayInfoManager.getInstance().getPlayInfo();
+        MusicPlayInfo playInfo = MusicPlayInfoManager.getInstance().getPlayMusicInfoForIndex();
         MusicPlayerManager.getInstance(getActivity()).playAction(playInfo, MusicInfo.LOCAL);
     }
 

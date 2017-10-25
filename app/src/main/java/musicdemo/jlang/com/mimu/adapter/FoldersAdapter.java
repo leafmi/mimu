@@ -14,7 +14,7 @@ import java.util.List;
 
 import musicdemo.jlang.com.mimu.R;
 import musicdemo.jlang.com.mimu.bean.FolderInfo;
-import musicdemo.jlang.com.mimu.fragment.RecyclerViewOnItemClickListener;
+import musicdemo.jlang.com.mimu.interfac.RecyclerViewOnItemClickListener;
 
 /**
  * Created by JLang on 2017/10/17.

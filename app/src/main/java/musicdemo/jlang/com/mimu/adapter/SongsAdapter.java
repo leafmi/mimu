@@ -15,7 +15,7 @@ import java.util.List;
 
 import musicdemo.jlang.com.mimu.R;
 import musicdemo.jlang.com.mimu.bean.MusicInfo;
-import musicdemo.jlang.com.mimu.fragment.RecyclerViewOnItemClickListener;
+import musicdemo.jlang.com.mimu.interfac.RecyclerViewOnItemClickListener;
 import musicdemo.jlang.com.mimu.util.ATEUtil;
 import musicdemo.jlang.com.mimu.util.ListenerUtil;
 

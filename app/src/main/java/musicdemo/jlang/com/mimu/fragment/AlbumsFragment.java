@@ -21,6 +21,7 @@ import musicdemo.jlang.com.mimu.activity.AlbumDetailActivity;
 import musicdemo.jlang.com.mimu.adapter.AlbumsAdapter;
 import musicdemo.jlang.com.mimu.bean.Album;
 import musicdemo.jlang.com.mimu.dataloader.AlbumLoader;
+import musicdemo.jlang.com.mimu.interfac.RecyclerViewOnItemClickListener;
 
 /**
  * Created by JLang on 2017/10/16.
@@ -58,7 +59,7 @@ public class AlbumsFragment extends Fragment implements RecyclerViewOnItemClickL
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 2);
         mAlbumsRecyclerView.setLayoutManager(mLayoutManager);
 
-        getAllAlbums();
+//        getAllAlbums();
     }
 
     /**
